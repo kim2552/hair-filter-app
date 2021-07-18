@@ -34,7 +34,7 @@ public class GLViewActivity extends BaseViewActivity implements ActivityCompat.O
         mVideoRenderer = new GLVideoRenderer();
         mVideoRenderer.init(glSurfaceView);
 
-//        ((FrameLayout) findViewById(R.id.preview)).addView(mPreview);
+        ((FrameLayout) findViewById(R.id.preview)).addView(mPreview);
     }
 
     @Override

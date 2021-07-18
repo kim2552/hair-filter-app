@@ -103,7 +103,6 @@ public class VideoCameraPreview extends SurfaceView implements SurfaceHolder.Cal
      * @param h The new height of the surface.
      */
     public void surfaceChanged(SurfaceHolder holder, int format, int w, int h){
-        Log.i(TAG,"surfaceChanged");
         if(null == mImageReader && null != mPreviewSize) {
             mImageReader = ImageReader.newInstance(mPreviewSize.getWidth(), mPreviewSize.getHeight(), ImageFormat.YUV_420_888, 2);
             mImageReader.setOnImageAvailableListener(mVideoCapture, mBackgroundHandler);
@@ -302,42 +301,42 @@ public class VideoCameraPreview extends SurfaceView implements SurfaceHolder.Cal
             Log.e(TAG, "Cannot access the camera." + e.toString());
         }
 
-//        // Use a very small tolerance because we want an exact match.
-//        final double ASPECT_TOLERANCE = 0.1;
-//        double targetRatio = (double) w / h;
-//        if (mOutputSizes == null)
-//            return null;
-//
-//        Size optimalSize = null;
-//
-//        // Start with max value and refine as we iterate over available preview sizes. This is the
-//        // minimum difference between view and camera height.
-//        double minDiff = Double.MAX_VALUE;
-//
-//        // Try to find a preview size that matches aspect ratio and the target view size.
-//        // Iterate over all available sizes and pick the largest size that can fit in the view and
-//        // still maintain the aspect ratio.
-//        for (Size size : mOutputSizes) {
-//            double ratio = (double) size.getWidth() / size.getHeight();
-//            if (Math.abs(ratio - targetRatio) > ASPECT_TOLERANCE)
-//                continue;
-//            if (Math.abs(size.getHeight() - h) < minDiff) {
-//                optimalSize = size;
-//                minDiff = Math.abs(size.getHeight() - h);
-//            }
-//        }
-//
-//        // Cannot find preview size that matches the aspect ratio, ignore the requirement
-//        if (optimalSize == null) {
-//            minDiff = Double.MAX_VALUE;
-//            for (Size size : mOutputSizes) {
-//                if (Math.abs(size.getHeight() - h) < minDiff) {
-//                    optimalSize = size;
-//                    minDiff = Math.abs(size.getHeight() - h);
-//                }
-//            }
-//        }
+        // Use a very small tolerance because we want an exact match.
+        final double ASPECT_TOLERANCE = 0.1;
+        double targetRatio = (double) w / h;
+        if (mOutputSizes == null)
+            return null;
 
-        return new Size(w,h);//optimalSize;
+        Size optimalSize = null;
+
+        // Start with max value and refine as we iterate over available preview sizes. This is the
+        // minimum difference between view and camera height.
+        double minDiff = Double.MAX_VALUE;
+
+        // Try to find a preview size that matches aspect ratio and the target view size.
+        // Iterate over all available sizes and pick the largest size that can fit in the view and
+        // still maintain the aspect ratio.
+        for (Size size : mOutputSizes) {
+            double ratio = (double) size.getWidth() / size.getHeight();
+            if (Math.abs(ratio - targetRatio) > ASPECT_TOLERANCE)
+                continue;
+            if (Math.abs(size.getHeight() - h) < minDiff) {
+                optimalSize = size;
+                minDiff = Math.abs(size.getHeight() - h);
+            }
+        }
+
+        // Cannot find preview size that matches the aspect ratio, ignore the requirement
+        if (optimalSize == null) {
+            minDiff = Double.MAX_VALUE;
+            for (Size size : mOutputSizes) {
+                if (Math.abs(size.getHeight() - h) < minDiff) {
+                    optimalSize = size;
+                    minDiff = Math.abs(size.getHeight() - h);
+                }
+            }
+        }
+
+        return optimalSize;
     }
 }
