@@ -5,7 +5,7 @@
 #include <memory>
 #include <android/native_window.h>
 
-enum { tYUV420, tYUV420_FILTER };
+enum { tYUV420=0, tYUV420_FILTER=1 };
 
 struct video_frame
 {
