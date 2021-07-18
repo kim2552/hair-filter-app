@@ -5,6 +5,8 @@ import android.content.pm.PackageManager;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
@@ -35,6 +37,24 @@ public class GLViewActivity extends BaseViewActivity implements ActivityCompat.O
         mVideoRenderer.init(glSurfaceView);
 
         ((FrameLayout) findViewById(R.id.preview)).addView(mPreview);
+
+        Button btnFilterLeft = (Button) findViewById(R.id.filter_left);
+        btnFilterLeft.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                mParams = mVideoRenderer.getVideoParamaters();
+                mParams -= 1;
+                mVideoRenderer.setVideoParameters(mParams);
+            }
+        });
+
+        Button btnFilterRight = (Button) findViewById(R.id.filter_right);
+        btnFilterRight.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                mParams = mVideoRenderer.getVideoParamaters();
+                mParams += 1;
+                mVideoRenderer.setVideoParameters(mParams);
+            }
+        });
     }
 
     @Override

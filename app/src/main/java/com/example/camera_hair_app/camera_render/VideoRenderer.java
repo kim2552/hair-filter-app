@@ -4,7 +4,7 @@ import android.view.Surface;
 
 public abstract class VideoRenderer {
     protected enum Type{
-        GL_YUV420(0), GL_YUV420_FILTER(2);
+        GL_YUV420(0), GL_YUV420_FILTER(1);
 
         private int mValue;
 
