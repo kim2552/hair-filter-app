@@ -68,6 +68,22 @@ void GLVideoRendererYUV420::render()
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 }
 
+// Reads data from src to dst mirrored
+void copyoverdata(uint8_t* dst, const uint8_t* src, size_t width, size_t height, size_t n)
+{
+	size_t i;
+	dst += n-width;
+
+	for (int h = 0; h < height; h++)
+	{
+		memcpy(dst, src, width);
+
+		src += width;
+		dst -= width;
+	}
+}
+
+
 void GLVideoRendererYUV420::updateFrame(const video_frame& frame)
 {
 	m_sizeY = frame.width * frame.height;
@@ -87,41 +103,41 @@ void GLVideoRendererYUV420::updateFrame(const video_frame& frame)
 
 	if (m_width == frame.stride_y)
     {
-		memcpy(m_pDataY.get(), frame.y, m_sizeY);
+		copyoverdata(m_pDataY.get(), frame.y, m_width, m_height, m_sizeY);
 	}
     else
     {
 		uint8_t* pSrcY = frame.y;
-		uint8_t* pDstY = m_pDataY.get();
+		uint8_t* pDstY = m_pDataY.get() + m_sizeY - m_width;
 
 		for (int h = 0; h < m_height; h++)
         {
 			memcpy(pDstY, pSrcY, m_width);
 
 			pSrcY += frame.stride_y;
-			pDstY += m_width;
+			pDstY -= m_width;
 		}
 	}
 
 	if (m_width / 2 == frame.stride_uv)
     {
-		memcpy(m_pDataU, frame.u, m_sizeU);
-		memcpy(m_pDataV, frame.v, m_sizeV);
+		copyoverdata(m_pDataU, frame.u, m_width/2, m_height/2, m_sizeU);
+		copyoverdata(m_pDataV, frame.v, m_width/2, m_height/2, m_sizeV);
 	}
     else
     {
 		uint8_t* pSrcU = frame.u;
 		uint8_t* pSrcV = frame.v;
-		uint8_t* pDstU = m_pDataU;
-		uint8_t* pDstV = m_pDataV;
+		uint8_t* pDstU = m_pDataU + m_sizeU - (m_width/2);
+		uint8_t* pDstV = m_pDataV + m_sizeV - (m_width/2);
 
 		for (int h = 0; h < m_height / 2; h++)
         {
 			memcpy(pDstU, pSrcU, m_width / 2);
 			memcpy(pDstV, pSrcV, m_width / 2);
 
-			pDstU += m_width / 2;
-			pDstV += m_width / 2;
+			pDstU -= m_width / 2;
+			pDstV -= m_width / 2;
 
 			pSrcU += frame.stride_uv;
 			pSrcV += frame.stride_uv;
