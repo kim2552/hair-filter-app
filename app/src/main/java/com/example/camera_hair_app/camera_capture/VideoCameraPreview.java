@@ -33,6 +33,8 @@ import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
+import com.example.camera_hair_app.libs.*;
+
 public class VideoCameraPreview extends SurfaceView implements SurfaceHolder.Callback {
     private static final String TAG = VideoCameraPreview.class.toString();
 
@@ -303,7 +305,7 @@ public class VideoCameraPreview extends SurfaceView implements SurfaceHolder.Cal
 
         // Use a very small tolerance because we want an exact match.
         final double ASPECT_TOLERANCE = 0.1;
-        double targetRatio = (double) w / h;
+        double targetRatio = (double) 4 / 3;    //We always want aspect ratio of 4:3    //(double) w / h;
         if (mOutputSizes == null)
             return null;
 
