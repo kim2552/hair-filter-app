@@ -39,21 +39,17 @@ public class GLViewActivity extends BaseViewActivity implements ActivityCompat.O
         ((FrameLayout) findViewById(R.id.preview)).addView(mPreview);
 
         Button btnFilterLeft = (Button) findViewById(R.id.filter_left);
-        btnFilterLeft.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                mParams = mVideoRenderer.getVideoParamaters();
-                mParams -= 1;
-                mVideoRenderer.setVideoParameters(mParams);
-            }
+        btnFilterLeft.setOnClickListener(v -> {
+            mParams = mVideoRenderer.getVideoParamaters();
+            mParams -= 1;
+            mVideoRenderer.setVideoParameters(mParams);
         });
 
         Button btnFilterRight = (Button) findViewById(R.id.filter_right);
-        btnFilterRight.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                mParams = mVideoRenderer.getVideoParamaters();
-                mParams += 1;
-                mVideoRenderer.setVideoParameters(mParams);
-            }
+        btnFilterRight.setOnClickListener(v -> {
+            mParams = mVideoRenderer.getVideoParamaters();
+            mParams += 1;
+            mVideoRenderer.setVideoParameters(mParams);
         });
     }
 

@@ -28,8 +28,6 @@ public abstract class BaseViewActivity extends FragmentActivity implements Previ
         ORIENTATIONS.append(Surface.ROTATION_270, 180);
     }
 
-    private static final int FINAL_ORIENTATION = Surface.ROTATION_0;    // We're always in portrait mode
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,17 +36,8 @@ public abstract class BaseViewActivity extends FragmentActivity implements Previ
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);  //TODO::Replace deprecated functionality
 
         mPreview = new VideoCameraPreview(this);
-        int display_width, display_height;
 
-        if(FINAL_ORIENTATION == Surface.ROTATION_0){
-            display_width = displayMetrics.heightPixels;
-            display_height = displayMetrics.widthPixels;
-        }else{
-            display_width = displayMetrics.widthPixels;
-            display_height = displayMetrics.heightPixels;
-        }
-
-        mPreview.init(display_width, display_height);
+        mPreview.init(displayMetrics.widthPixels, displayMetrics.heightPixels);
     }
 
     protected int getOrientation(){
