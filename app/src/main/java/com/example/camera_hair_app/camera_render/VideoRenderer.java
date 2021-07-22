@@ -24,5 +24,6 @@ public abstract class VideoRenderer {
 
     static {
         System.loadLibrary("media-lib");
+        System.loadLibrary("opencv_java4");
     }
 }

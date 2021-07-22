@@ -3,6 +3,7 @@
 
 #include "VideoRenderer.h"
 #include "GLUtils.h"
+#include <opencv2/core.hpp>
 
 class GLVideoRendererYUV420 : public VideoRenderer
 {
