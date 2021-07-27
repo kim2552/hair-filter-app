@@ -305,7 +305,7 @@ public class VideoCameraPreview extends SurfaceView implements SurfaceHolder.Cal
 
         // Use a very small tolerance because we want an exact match.
         final double ASPECT_TOLERANCE = 0.1;
-        double targetRatio = (double) 4 / 3;    //We always want aspect ratio of 4:3    //(double) w / h;
+        double targetRatio = (double) 16 / 9;    //We always want aspect ratio of 4:3    //(double) w / h;
         if (mOutputSizes == null)
             return null;
 
@@ -339,6 +339,6 @@ public class VideoCameraPreview extends SurfaceView implements SurfaceHolder.Cal
             }
         }
 
-        return optimalSize;
+        return new Size(optimalSize.getHeight(),optimalSize.getWidth());
     }
 }

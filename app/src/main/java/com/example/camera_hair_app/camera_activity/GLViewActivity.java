@@ -5,15 +5,14 @@ import android.content.pm.PackageManager;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
-import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 
 import com.example.camera_hair_app.R;
 import com.example.camera_hair_app.camera_render.GLVideoRenderer;
+import com.example.camera_hair_app.libs.AspectFrameLayout;
 
 public class GLViewActivity extends BaseViewActivity implements ActivityCompat.OnRequestPermissionsResultCallback {
 
@@ -36,7 +35,9 @@ public class GLViewActivity extends BaseViewActivity implements ActivityCompat.O
         mVideoRenderer = new GLVideoRenderer();
         mVideoRenderer.init(glSurfaceView);
 
-        ((FrameLayout) findViewById(R.id.preview)).addView(mPreview);
+        AspectFrameLayout layout = (AspectFrameLayout) findViewById(R.id.preview);
+        layout.setAspectRatio((double) 9/16);
+        layout.addView(mPreview);
 
         Button btnFilterLeft = (Button) findViewById(R.id.filter_left);
         btnFilterLeft.setOnClickListener(v -> {

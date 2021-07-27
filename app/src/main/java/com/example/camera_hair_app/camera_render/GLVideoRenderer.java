@@ -1,5 +1,6 @@
 package com.example.camera_hair_app.camera_render;
 
+import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 
 import javax.microedition.khronos.egl.EGLConfig;
