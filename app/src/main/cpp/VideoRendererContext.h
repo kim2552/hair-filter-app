@@ -19,7 +19,7 @@ public:
 
     void init(ANativeWindow* window, size_t width, size_t height);
 	void render();
-	void draw(uint8_t *buffer, size_t length, size_t width, size_t height, int rotation);
+	void draw(uint8_t *buffer, size_t length, size_t width, size_t height, int rotation, int camera_facing);
 	void setParameters(uint32_t params);
 	uint32_t getParameters();
 

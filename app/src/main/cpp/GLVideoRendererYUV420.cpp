@@ -42,6 +42,7 @@ GLVideoRendererYUV420::GLVideoRendererYUV420()
 	, m_uniformProjection(0)
     , m_uniformRotation(0)
     , m_uniformScale(0)
+    , m_cameraFacing(0)
 {
 	isProgramChanged = true;
 }
@@ -84,14 +85,15 @@ void copyoverdata(uint8_t* dst, const uint8_t* src, size_t width, size_t height,
 }
 
 
-void GLVideoRendererYUV420::updateFrame(const video_frame& frame)
+void GLVideoRendererYUV420::updateFrame(const video_frame& frame, int camera_facing)
 {
 	m_sizeY = frame.width * frame.height;
 	m_sizeU = frame.width * frame.height / 4;
 	m_sizeV = frame.width * frame.height / 4;
 
-	if (m_pDataY == nullptr || m_width != frame.width || m_height != frame.height)
+	if (m_pDataY == nullptr || m_width != frame.width || m_height != frame.height || m_cameraFacing != camera_facing)
     {
+		m_cameraFacing = camera_facing;
         m_pDataY = std::make_unique<uint8_t[]>(m_sizeY + m_sizeU + m_sizeV);
 		m_pDataU = m_pDataY.get() + m_sizeY;
 		m_pDataV = m_pDataU + m_sizeU;
@@ -103,41 +105,73 @@ void GLVideoRendererYUV420::updateFrame(const video_frame& frame)
 
 	if (m_width == frame.stride_y)
     {
-		copyoverdata(m_pDataY.get(), frame.y, m_width, m_height, m_sizeY);
+		if(m_cameraFacing == 0){	// front facing
+			copyoverdata(m_pDataY.get(), frame.y, m_width, m_height, m_sizeY);
+		}else{
+			memcpy(m_pDataY.get(), frame.y, m_sizeY);
+		}
 	}
     else
     {
 		uint8_t* pSrcY = frame.y;
-		uint8_t* pDstY = m_pDataY.get() + m_sizeY - m_width;
+		uint8_t* pDstY;
+		if(m_cameraFacing == 0){	// front facing
+			pDstY = m_pDataY.get() + m_sizeY - m_width;
+		}else{
+			pDstY = m_pDataY.get();
+		}
+
 
 		for (int h = 0; h < m_height; h++)
         {
 			memcpy(pDstY, pSrcY, m_width);
 
 			pSrcY += frame.stride_y;
-			pDstY -= m_width;
+			if(m_cameraFacing == 0){	// front facing
+				pDstY -= m_width;
+			}else{
+				pDstY += m_width;
+			}
+
 		}
 	}
 
 	if (m_width / 2 == frame.stride_uv)
     {
-		copyoverdata(m_pDataU, frame.u, m_width/2, m_height/2, m_sizeU);
-		copyoverdata(m_pDataV, frame.v, m_width/2, m_height/2, m_sizeV);
+		if(m_cameraFacing == 0){	// front facing
+			copyoverdata(m_pDataU, frame.u, m_width/2, m_height/2, m_sizeU);
+			copyoverdata(m_pDataV, frame.v, m_width/2, m_height/2, m_sizeV);
+		}else{
+			memcpy(m_pDataU, frame.u, m_sizeU);
+			memcpy(m_pDataV, frame.v, m_sizeV);
+		}
 	}
     else
     {
 		uint8_t* pSrcU = frame.u;
 		uint8_t* pSrcV = frame.v;
-		uint8_t* pDstU = m_pDataU + m_sizeU - (m_width/2);
-		uint8_t* pDstV = m_pDataV + m_sizeV - (m_width/2);
+		uint8_t *pDstU;
+		uint8_t *pDstV;
+		if(m_cameraFacing == 0) {    // front facing
+			pDstU = m_pDataU + m_sizeU - (m_width / 2);
+			pDstV = m_pDataV + m_sizeV - (m_width / 2);
+		}else{
+			pDstU = m_pDataU;
+			pDstV = m_pDataV;
+		}
 
 		for (int h = 0; h < m_height / 2; h++)
         {
 			memcpy(pDstU, pSrcU, m_width / 2);
 			memcpy(pDstV, pSrcV, m_width / 2);
 
-			pDstU -= m_width / 2;
-			pDstV -= m_width / 2;
+			if(m_cameraFacing == 0) {    // front facing
+				pDstU -= m_width / 2;
+				pDstV -= m_width / 2;
+			}else{
+				pDstU += m_width / 2;
+				pDstV += m_width / 2;
+			}
 
 			pSrcU += frame.stride_uv;
 			pSrcV += frame.stride_uv;
@@ -147,7 +181,7 @@ void GLVideoRendererYUV420::updateFrame(const video_frame& frame)
 	isDirty = true;
 }
 
-void GLVideoRendererYUV420::draw(uint8_t *buffer, size_t length, size_t width, size_t height, int rotation)
+void GLVideoRendererYUV420::draw(uint8_t *buffer, size_t length, size_t width, size_t height, int rotation, int camera_facing)
 {
     m_length = length;
     m_rotation = rotation;
@@ -161,7 +195,7 @@ void GLVideoRendererYUV420::draw(uint8_t *buffer, size_t length, size_t width, s
 	frame.u = buffer + width * height;
 	frame.v = buffer + width * height * 5 / 4;
 
-	updateFrame(frame);
+	updateFrame(frame, camera_facing);
 }
 
 void GLVideoRendererYUV420::setParameters(uint32_t params)

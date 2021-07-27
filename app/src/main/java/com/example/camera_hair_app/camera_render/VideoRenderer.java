@@ -18,7 +18,7 @@ public abstract class VideoRenderer {
     protected native void destroy();
     protected native void init(Surface surface, int width, int height);
     protected native void render();
-    protected native void draw(byte[] data, int width, int height, int rotation);
+    protected native void draw(byte[] data, int width, int height, int rotation, int camera_facing);
     protected native void setParameters(int params);
     protected native int getParameters();
 

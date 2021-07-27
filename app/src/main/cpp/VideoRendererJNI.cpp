@@ -29,7 +29,7 @@ JCMCPRV(void, render)(JNIEnv * env, jobject obj)
 	if (context) context->render();
 }
 
-JCMCPRV(void, draw)(JNIEnv * env, jobject obj, jbyteArray data, jint width, jint height, jint rotation)
+JCMCPRV(void, draw)(JNIEnv * env, jobject obj, jbyteArray data, jint width, jint height, jint rotation, jint camera_facing)
 {
 	jbyte* bufferPtr = env->GetByteArrayElements(data, 0);
 
@@ -37,7 +37,7 @@ JCMCPRV(void, draw)(JNIEnv * env, jobject obj, jbyteArray data, jint width, jint
 
 	VideoRendererContext* context = VideoRendererContext::getContext(env, obj);
 
-	if (context) context->draw((uint8_t *)bufferPtr, (size_t)arrayLength, (size_t)width, (size_t)height, rotation);
+	if (context) context->draw((uint8_t *)bufferPtr, (size_t)arrayLength, (size_t)width, (size_t)height, rotation, camera_facing);
 
 	env->ReleaseByteArrayElements(data, bufferPtr, 0);
 }

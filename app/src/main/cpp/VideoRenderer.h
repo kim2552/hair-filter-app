@@ -27,8 +27,8 @@ public:
 
     virtual void init(ANativeWindow* window, size_t width, size_t height) = 0;
 	virtual void render() = 0;
-	virtual void updateFrame(const video_frame& frame) = 0;
-	virtual void draw(uint8_t *buffer, size_t length, size_t width, size_t height, int rotation) = 0;
+	virtual void updateFrame(const video_frame& frame, int camera_facing) = 0;
+	virtual void draw(uint8_t *buffer, size_t length, size_t width, size_t height, int rotation, int camera_facing) = 0;
 	virtual void setParameters(uint32_t params) = 0;
 	virtual uint32_t getParameters() = 0;
 	virtual bool createTextures() = 0;

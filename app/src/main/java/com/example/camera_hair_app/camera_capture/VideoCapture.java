@@ -1,6 +1,7 @@
 package com.example.camera_hair_app.camera_capture;
 
 import android.graphics.ImageFormat;
+import android.hardware.camera2.CameraCharacteristics;
 import android.media.Image;
 import android.media.ImageReader;
 import android.util.Log;
@@ -11,6 +12,7 @@ public class VideoCapture implements ImageReader.OnImageAvailableListener {
 
     private static final String TAG = VideoCapture.class.toString();
     private PreviewFrameHandler mPreviewFrameHandler;
+    public int camera_facing = CameraCharacteristics.LENS_FACING_FRONT;
 
     public VideoCapture(PreviewFrameHandler frameHandler){
         mPreviewFrameHandler = frameHandler;
@@ -21,7 +23,7 @@ public class VideoCapture implements ImageReader.OnImageAvailableListener {
         Image image = imageReader.acquireLatestImage();
         if(image != null){
             if(mPreviewFrameHandler != null){
-                mPreviewFrameHandler.onPreviewFrame(YUV_420_888_data(image), image.getWidth(), image.getHeight());
+                mPreviewFrameHandler.onPreviewFrame(YUV_420_888_data(image), image.getWidth(), image.getHeight(), camera_facing);
             }
             image.close();
         }

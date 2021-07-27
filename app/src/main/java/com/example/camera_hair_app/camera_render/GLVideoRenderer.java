@@ -29,8 +29,8 @@ public class GLVideoRenderer extends VideoRenderer implements GLSurfaceView.Rend
 
     public void destroyRender() { destroy(); }
 
-    public void drawVideoFrame(byte[] data, int width, int height, int rotation){
-        draw(data, width, height, rotation);
+    public void drawVideoFrame(byte[] data, int width, int height, int rotation, int camera_facing){
+        draw(data, width, height, rotation, camera_facing);
     }
 
     public void setVideoParameters(int params){

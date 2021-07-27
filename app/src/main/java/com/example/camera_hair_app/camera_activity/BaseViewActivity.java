@@ -21,6 +21,8 @@ public abstract class BaseViewActivity extends FragmentActivity implements Previ
     protected VideoCameraPreview mPreview;
     protected int mParams;
 
+    protected DisplayMetrics displayMetrics = new DisplayMetrics();
+
     static {
         ORIENTATIONS.append(Surface.ROTATION_0, 90);
         ORIENTATIONS.append(Surface.ROTATION_90, 0);
@@ -32,7 +34,6 @@ public abstract class BaseViewActivity extends FragmentActivity implements Previ
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        DisplayMetrics displayMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);  //TODO::Replace deprecated functionality
 
         mPreview = new VideoCameraPreview(this);

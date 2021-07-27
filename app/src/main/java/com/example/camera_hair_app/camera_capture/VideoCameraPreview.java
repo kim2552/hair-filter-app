@@ -67,6 +67,20 @@ public class VideoCameraPreview extends SurfaceView implements SurfaceHolder.Cal
         mPreviewSize = getOptimalPreviewSize(w,h);
     }
 
+    public void setCameraFacing(int w, int h){
+        stopCamera();
+        if(mSelectedCameraFacing == CameraCharacteristics.LENS_FACING_FRONT){
+            mSelectedCameraFacing = CameraCharacteristics.LENS_FACING_BACK;
+        }else if(mSelectedCameraFacing == CameraCharacteristics.LENS_FACING_BACK){
+            mSelectedCameraFacing = CameraCharacteristics.LENS_FACING_FRONT;
+        }else{
+            mSelectedCameraFacing = CameraCharacteristics.LENS_FACING_FRONT;    // default
+        }
+        mVideoCapture.camera_facing = mSelectedCameraFacing;
+        mPreviewSize = getOptimalPreviewSize(w,h);
+        startCamera();
+    }
+
     /**
      * This is called immediately after the surface is first created.
      * Implementations of this should start up whatever rendering code

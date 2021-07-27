@@ -23,9 +23,9 @@ void VideoRendererContext::render()
 	m_pVideoRenderer->render();
 }
 
-void VideoRendererContext::draw(uint8_t *buffer, size_t length, size_t width, size_t height, int rotation)
+void VideoRendererContext::draw(uint8_t *buffer, size_t length, size_t width, size_t height, int rotation, int camera_facing)
 {
-    m_pVideoRenderer->draw(buffer, length, width, height, rotation);
+    m_pVideoRenderer->draw(buffer, length, width, height, rotation, camera_facing);
 }
 
 void VideoRendererContext::setParameters(uint32_t params)

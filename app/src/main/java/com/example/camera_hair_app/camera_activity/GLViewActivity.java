@@ -39,6 +39,11 @@ public class GLViewActivity extends BaseViewActivity implements ActivityCompat.O
         layout.setAspectRatio((double) 9/16);
         layout.addView(mPreview);
 
+        Button btnFlipCamera = (Button) findViewById(R.id.flip_camera);
+        btnFlipCamera.setOnClickListener(v -> {
+            mPreview.setCameraFacing(displayMetrics.widthPixels, displayMetrics.heightPixels);
+        });
+
         Button btnFilterLeft = (Button) findViewById(R.id.filter_left);
         btnFilterLeft.setOnClickListener(v -> {
             mParams = mVideoRenderer.getVideoParamaters();
@@ -79,8 +84,8 @@ public class GLViewActivity extends BaseViewActivity implements ActivityCompat.O
     }
 
     @Override
-    public void onPreviewFrame(byte[] data, int width, int height) {
-        mVideoRenderer.drawVideoFrame(data, width, height, getOrientation());
+    public void onPreviewFrame(byte[] data, int width, int height, int camera_facing) {
+        mVideoRenderer.drawVideoFrame(data, width, height, getOrientation(), camera_facing);
         mVideoRenderer.requestRender();
     }
 
