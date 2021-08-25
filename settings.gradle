@@ -1,4 +1,4 @@
 rootProject.name = "camera-hair-app"
 include ':app'
-include ':opencv'
-project(':opencv').projectDir = new File(opencvsdk + '/sdk')
+include ':openCVLibrary340dev'
+//project(':openCVLibrary340dev').projectDir = new File(opencvsdk + '/sdk')
