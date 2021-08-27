@@ -5,7 +5,7 @@
 #ifndef CAMERA_HAIR_APP_EBO_H
 #define CAMERA_HAIR_APP_EBO_H
 
-#include<glad/glad.h>
+#include <GLES3/gl3.h>
 #include<vector>
 
 #include "globals.h"

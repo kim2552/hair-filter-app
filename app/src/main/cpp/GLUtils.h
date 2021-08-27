@@ -2,8 +2,6 @@
 #define _H_GL_UTILS_
 
 #include <GLES3/gl3.h>
-#include <opencv2/flann.hpp>
-#include <opencv2/face.hpp>
 
 GLuint load_shader(GLenum shaderType, const char *pSource);
 GLuint create_program(const char *pVertexSource, const char *pFragmentSource, GLuint &vertexShader,

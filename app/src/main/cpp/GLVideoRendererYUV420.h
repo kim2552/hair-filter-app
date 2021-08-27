@@ -5,6 +5,9 @@
 #include "GLUtils.h"
 #include <opencv2/core.hpp>
 
+#include "render/Camera.h"
+#include "render/Mesh.h"
+
 class GLVideoRendererYUV420 : public VideoRenderer
 {
 public:
@@ -54,6 +57,12 @@ private:
     GLint m_uniformScale;
 
     GLuint m_cameraFacing;
+
+	Camera* camera;
+	std::vector<Texture> pointTextures;
+	Mesh* pointMesh;
+	Shader* shaderProgramPoint;
+	glm::mat4 pointModel;
 };
 
 #endif //_GL_VIDEO_RENDERER_YUV_H_

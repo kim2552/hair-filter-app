@@ -19,6 +19,22 @@ static const float kTextureCoords[8] = {
   1, 1
 };
 
+// Vertices coordinates
+static const Vertex pointVerts[4] =
+		{ //               COORDINATES           /            NORMALS          /           COLORS         /       TEXCOORDS         //
+				Vertex{glm::vec3(-1.0f, 1.0f,  0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 0.0f)},
+				Vertex{glm::vec3(-1.0f, -1.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 1.0f)},
+				Vertex{glm::vec3(1.0f, -1.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 1.0f)},
+				Vertex{glm::vec3(1.0f, 1.0f,  0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 0.0f)}
+		};
+
+// Indices for vertices order
+static const GLuint pointInds[6] =
+		{
+				0, 1, 2,
+				0, 2, 3
+		};
+
 GLVideoRendererYUV420::GLVideoRendererYUV420()
     : m_program(0)
 	, m_vertexShader(0)
@@ -57,6 +73,24 @@ void GLVideoRendererYUV420::init(ANativeWindow* window, size_t width, size_t hei
 {
     m_backingWidth = width;
     m_backingHeight = height;
+
+//    //TODO::Move this somewhere else
+//    shaderProgramPoint = new Shader("assets/shaders/point.vert", "assets/shaders/point.frag");
+//    camera = new Camera(m_backingWidth, m_backingHeight, glm::vec3(0.0,0.0,2.5));
+//    pointTextures.push_back(Texture("assets/colors/green.png","diffuse",0));
+//
+//	// Store mesh data in vectors for the mesh
+//	std::vector <Vertex> pVerts(pointVerts, pointVerts + sizeof(pointVerts) / sizeof(Vertex));
+//	std::vector <GLuint> pInds(pointInds, pointInds + sizeof(pointInds) / sizeof(GLuint));
+//
+//    pointMesh = new Mesh(pVerts,pInds,pointTextures);
+//
+//	// Activate shader for Face Mask and configure the model matrix
+//	shaderProgramPoint->Activate();
+//	pointModel = glm::mat4(1.0f);
+//	glm::mat4 translation = glm::translate(glm::mat4(1.0), glm::vec3(0.0, 0.0, 0.5));
+//	pointModel = translation * pointModel;
+
 }
 
 void GLVideoRendererYUV420::render()
@@ -67,6 +101,8 @@ void GLVideoRendererYUV420::render()
 	if (!updateTextures() || !useProgram()) return;
 
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+//	pointMesh->Draw(*shaderProgramPoint, *camera, pointModel);
 }
 
 // Reads data from src to dst mirrored

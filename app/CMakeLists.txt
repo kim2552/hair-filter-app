@@ -14,6 +14,33 @@ include_directories(${OpenCV_DIR}/jni/include)
 add_library( lib_opencv SHARED IMPORTED )
 set_target_properties(lib_opencv PROPERTIES IMPORTED_LOCATION ${OpenCV_DIR}/libs/${ANDROID_ABI}/libopencv_java3.so)
 
+add_library(3rdparty INTERFACE)
+target_include_directories(3rdparty INTERFACE ${SRC_DIR}/3rdparty)
+target_include_directories(3rdparty INTERFACE ${SRC_DIR}/3rdparty/cereal)
+target_include_directories(3rdparty INTERFACE ${SRC_DIR}/3rdparty/Eigen)
+target_include_directories(3rdparty INTERFACE ${SRC_DIR}/3rdparty/eigen3-nnls)
+target_include_directories(3rdparty INTERFACE ${SRC_DIR}/3rdparty/glm)
+target_include_directories(3rdparty INTERFACE ${SRC_DIR}/3rdparty/mexplus)
+target_include_directories(3rdparty INTERFACE ${SRC_DIR}/3rdparty/nanoflann)
+target_include_directories(3rdparty INTERFACE ${SRC_DIR}/3rdparty/toml11)
+
+add_library(eos INTERFACE)
+target_include_directories(eos INTERFACE ${SRC_DIR})
+target_include_directories(eos INTERFACE ${SRC_DIR}/eos)
+
+target_link_libraries(
+        eos
+        INTERFACE
+        3rdparty
+)
+
+add_library(include INTERFACE)
+target_include_directories(include INTERFACE ${SRC_DIR}/include)
+
+add_library(render INTERFACE)
+target_include_directories(render INTERFACE ${SRC_DIR}/render)
+
+
 # Creates and names a library, sets it as either STATIC
 # or SHARED, and provides the relative paths to its source code.
 # You can define multiple libraries, and CMake builds them for you.
@@ -26,13 +53,24 @@ add_library( # Sets the name of the library.
         SHARED
 
         # Provides a relative path to your source file(s).
+        ${SRC_DIR}/glad.c
+        ${SRC_DIR}/render/stb.cpp
+
         ${SRC_DIR}/VideoRenderer.cpp
         ${SRC_DIR}/VideoRendererContext.cpp
         ${SRC_DIR}/VideoRendererJNI.cpp
         ${SRC_DIR}/CommonUtils.cpp
         ${SRC_DIR}/GLUtils.cpp
         ${SRC_DIR}/GLVideoRendererYUV420.cpp
-        ${SRC_DIR}/GLVideoRendererYUV420Filter.cpp)
+        ${SRC_DIR}/GLVideoRendererYUV420Filter.cpp
+
+        ${SRC_DIR}/render/EBO.cpp
+        ${SRC_DIR}/render/VBO.cpp
+        ${SRC_DIR}/render/VAO.cpp
+        ${SRC_DIR}/render/ShaderClass.cpp
+        ${SRC_DIR}/render/Texture.cpp
+        ${SRC_DIR}/render/Camera.cpp
+        ${SRC_DIR}/render/Mesh.cpp)
 
 # Searches for a specified prebuilt library and stores the path as a
 # variable. Because CMake includes system libraries in the search path by
@@ -48,11 +86,11 @@ find_library( # Sets the name of the path variable.
         log )
 
 find_library( # Sets the name of the path variable.
-        GLESv2-lib
+        GLESv3-lib
 
         # Specifies the name of the NDK library that
         # you want CMake to locate.
-        GLESv2 )
+        GLESv3 )
 
 # Specifies libraries CMake should link to your target library. You
 # can link multiple libraries, such as libraries you define in this
@@ -63,7 +101,11 @@ target_link_libraries( # Specifies the target library.
         lib_opencv
         android
         ${log-lib}
-        ${GLESv2-lib})
+        ${GLESv3-lib}
+        include
+        render
+        eos
+        3rdparty)
 
 ########     CDep package for shaderc    ######################
 # pre-requirement:
