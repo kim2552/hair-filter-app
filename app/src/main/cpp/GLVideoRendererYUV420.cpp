@@ -20,12 +20,28 @@ static const float kTextureCoords[8] = {
 };
 
 // Vertices coordinates
-static const Vertex pointVerts[4] =
+Vertex imgVerts[] =
 		{ //               COORDINATES           /            NORMALS          /           COLORS         /       TEXCOORDS         //
 				Vertex{glm::vec3(-1.0f, 1.0f,  0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 0.0f)},
 				Vertex{glm::vec3(-1.0f, -1.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 1.0f)},
 				Vertex{glm::vec3(1.0f, -1.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 1.0f)},
 				Vertex{glm::vec3(1.0f, 1.0f,  0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 0.0f)}
+		};
+
+// Indices for vertices order
+static const GLuint imgInds[] =
+		{
+				0, 1, 2,
+				0, 2, 3
+		};
+
+// Vertices coordinates
+static const Vertex pointVerts[4] =
+		{ //               COORDINATES           /            NORMALS          /           COLORS         /       TEXCOORDS         //
+				Vertex{glm::vec3(-0.5f, 0.5f,  0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 0.0f)},
+				Vertex{glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 1.0f)},
+				Vertex{glm::vec3(0.5f, -0.5f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 1.0f)},
+				Vertex{glm::vec3(0.5f, 0.5f,  0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 0.0f)}
 		};
 
 // Indices for vertices order
@@ -74,23 +90,90 @@ void GLVideoRendererYUV420::init(ANativeWindow* window, size_t width, size_t hei
     m_backingWidth = width;
     m_backingHeight = height;
 
-//    //TODO::Move this somewhere else
-//    shaderProgramPoint = new Shader("assets/shaders/point.vert", "assets/shaders/point.frag");
-//    camera = new Camera(m_backingWidth, m_backingHeight, glm::vec3(0.0,0.0,2.5));
-//    pointTextures.push_back(Texture("assets/colors/green.png","diffuse",0));
-//
-//	// Store mesh data in vectors for the mesh
-//	std::vector <Vertex> pVerts(pointVerts, pointVerts + sizeof(pointVerts) / sizeof(Vertex));
-//	std::vector <GLuint> pInds(pointInds, pointInds + sizeof(pointInds) / sizeof(GLuint));
-//
-//    pointMesh = new Mesh(pVerts,pInds,pointTextures);
-//
-//	// Activate shader for Face Mask and configure the model matrix
-//	shaderProgramPoint->Activate();
-//	pointModel = glm::mat4(1.0f);
-//	glm::mat4 translation = glm::translate(glm::mat4(1.0), glm::vec3(0.0, 0.0, 0.5));
-//	pointModel = translation * pointModel;
+    char* pointvert = (char*)NULL;
+    char* pointfrag = (char*)NULL;
+    char* imagevert = (char*)NULL;
+    char* imagefrag = (char*)NULL;
 
+	AAssetDir* assetDir = AAssetManager_openDir(assetManager, "shaders");
+	const char* filename = (const char*)NULL;
+	while ((filename = AAssetDir_getNextFileName(assetDir)) != NULL) {
+		if(strcmp(filename, "point.vert") == 0){
+			AAsset* asset = AAssetManager_open(assetManager, "shaders/point.vert", AASSET_MODE_UNKNOWN);
+			long size = AAsset_getLength(asset);
+			pointvert = (char*) malloc (sizeof(char)*size);
+			AAsset_read(asset,pointvert,size);
+			AAsset_close(asset);
+		}
+		if(strcmp(filename, "point.frag") == 0){
+			AAsset* asset = AAssetManager_open(assetManager, "shaders/point.frag", AASSET_MODE_UNKNOWN);
+			long size = AAsset_getLength(asset);
+			pointfrag = (char*) malloc (sizeof(char)*size);
+			AAsset_read(asset,pointfrag,size);
+			AAsset_close(asset);
+		}
+		if(strcmp(filename, "image.vert") == 0){
+			AAsset* asset = AAssetManager_open(assetManager, "shaders/image.vert", AASSET_MODE_UNKNOWN);
+			long size = AAsset_getLength(asset);
+			imagevert = (char*) malloc (sizeof(char)*size);
+			AAsset_read(asset,imagevert,size);
+			AAsset_close(asset);
+		}
+		if(strcmp(filename, "image.frag") == 0){
+			AAsset* asset = AAssetManager_open(assetManager, "shaders/image.frag", AASSET_MODE_UNKNOWN);
+			long size = AAsset_getLength(asset);
+			imagefrag = (char*) malloc (sizeof(char)*size);
+			AAsset_read(asset,imagefrag,size);
+			AAsset_close(asset);
+		}
+	}
+	AAssetDir_close(assetDir);
+
+    //TODO::Move this somewhere else
+    shaderProgramPoint = new Shader(pointvert, pointfrag);
+	shaderProgramImg = new Shader(imagevert, imagefrag);
+    camera = new Camera(m_backingWidth, m_backingHeight, glm::vec3(0.0,0.0,2.5));
+
+	unsigned char* redpng;
+	int file_size;
+	AAssetDir* assetDirImg = AAssetManager_openDir(assetManager, "colors");
+	while ((filename = AAssetDir_getNextFileName(assetDirImg)) != NULL) {
+		if(strcmp(filename, "red.png") == 0){
+			AAsset* asset = AAssetManager_open(assetManager, "colors/red.png", AASSET_MODE_UNKNOWN);
+			file_size = AAsset_getLength(asset);
+			redpng = (unsigned char*) malloc (sizeof(unsigned char)*file_size);
+			AAsset_read(asset,redpng,file_size);
+			AAsset_close(asset);
+		}
+
+	}
+	AAssetDir_close(assetDirImg);
+
+    pointTextures.push_back(Texture(redpng,file_size,"diffuse",0));
+
+	// Store mesh data in vectors for the mesh
+	std::vector <Vertex> pVerts(pointVerts, pointVerts + sizeof(pointVerts) / sizeof(Vertex));
+	std::vector <GLuint> pInds(pointInds, pointInds + sizeof(pointInds) / sizeof(GLuint));
+
+    pointMesh = new Mesh(pVerts,pInds,pointTextures);
+
+	// Activate shader for Face Mask and configure the model matrix
+	shaderProgramPoint->Activate();
+	pointModel = glm::mat4(1.0f);
+//	pointModel = glm::scale(pointModel, glm::vec3(1.0/20.0, 1.0/20.0, 1.0/20.0));
+	glm::mat4 translation = glm::translate(glm::mat4(1.0), glm::vec3(0.0, 0.0, -0.5));
+	pointModel = translation * pointModel;
+
+	// Activate shader for Image and configure the model matrix
+	shaderProgramImg->Activate();
+	glm::mat4 imgModel = glm::mat4(1.0f);
+	imgModel = glm::rotate(imgModel, glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f));	// Flip the image
+	imgModel = glm::rotate(imgModel, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));	// Flip the image
+	for (size_t i = 0; i < 4; i++) {		// Height stays as 2.0, Width needs to change based on aspect ratio
+		imgVerts[i].position.x *= (float)m_backingWidth / (float)m_backingHeight;
+	}
+	glm::mat4 tr = glm::translate(glm::mat4(1.0), glm::vec3(0.0, 0.0, -0.0));
+	imgModel = tr * imgModel;
 }
 
 void GLVideoRendererYUV420::render()
@@ -98,11 +181,21 @@ void GLVideoRendererYUV420::render()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
-	if (!updateTextures() || !useProgram()) return;
+	// Image texture data
+	imgTextures.clear();	//TODO::Convert YUV to RGB image and pass it to imgTextures
+	imgTextures.push_back(Texture(m_pDataY.get(),"diffuse", 0, m_backingWidth, m_backingHeight, 1));						// Texture object deletes imgBytes afterwards
+	// Store mesh data in vectors for the mesh
+	std::vector <Vertex> iVerts(imgVerts, imgVerts + sizeof(imgVerts) / sizeof(Vertex));
+	std::vector <GLuint> iInds(imgInds, imgInds + sizeof(imgInds) / sizeof(GLuint));
+	// Create image mesh
+	Mesh imgMesh(iVerts, iInds, imgTextures);
 
-	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	imgMesh.Draw(*shaderProgramImg, *camera, imgModel);		// Draw the image
+	pointMesh->Draw(*shaderProgramPoint, *camera, pointModel);
 
-//	pointMesh->Draw(*shaderProgramPoint, *camera, pointModel);
+    if (!updateTextures() || !useProgram()) return;
+
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 }
 
 // Reads data from src to dst mirrored
@@ -232,6 +325,15 @@ void GLVideoRendererYUV420::draw(uint8_t *buffer, size_t length, size_t width, s
 	frame.v = buffer + width * height * 5 / 4;
 
 	updateFrame(frame, camera_facing);
+}
+
+void GLVideoRendererYUV420::setAssetManager(AAssetManager *mgr)
+{
+	assetManager = mgr;
+}
+
+AAssetManager * GLVideoRendererYUV420::getAssetManager() {
+	return assetManager;
 }
 
 void GLVideoRendererYUV420::setParameters(uint32_t params)

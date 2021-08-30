@@ -28,6 +28,17 @@ void VideoRendererContext::draw(uint8_t *buffer, size_t length, size_t width, si
     m_pVideoRenderer->draw(buffer, length, width, height, rotation, camera_facing);
 }
 
+void VideoRendererContext::setAssetManager(AAssetManager* mgr)
+{
+    m_assetManager = mgr;
+    m_pVideoRenderer->setAssetManager(m_assetManager);
+}
+
+AAssetManager* VideoRendererContext::getAssetManager()
+{
+    return m_assetManager;
+}
+
 void VideoRendererContext::setParameters(uint32_t params)
 {
     m_pVideoRenderer->setParameters(params);

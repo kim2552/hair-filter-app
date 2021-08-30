@@ -82,20 +82,20 @@ void Texture::configureTexture(unsigned char* bytes, const char* texType, GLuint
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 
     // Deletes the image data as it is already in the OpenGL Texture object
-    stbi_image_free(bytes);
+//    stbi_image_free(bytes);
 
     // Unbinds the OpenGL Texture object so that it can't accidentally be modified
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-Texture::Texture(const char* image, const char* texType, GLuint slot)
+Texture::Texture(unsigned char* image,int len, const char* texType, GLuint slot)
 {
     // Stores the width, height, and the number of color channels of the image
     int widthImg, heightImg, numColCh;
     // Flips the image so it appears right side up
     stbi_set_flip_vertically_on_load(true);
     // Reads the image from a file and stores it in bytes
-    unsigned char* bytes = stbi_load(image, &widthImg, &heightImg, &numColCh, 0);
+    unsigned char* bytes = stbi_load_from_memory(image, len, &widthImg, &heightImg, &numColCh, 0);
 
     configureTexture(bytes, texType, slot, widthImg, heightImg, numColCh);
 }

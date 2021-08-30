@@ -18,6 +18,8 @@ public:
 	virtual void render() override;
 	virtual void updateFrame(const video_frame& frame, int camera_facing) override;
 	virtual void draw(uint8_t *buffer, size_t length, size_t width, size_t height, int rotation, int camera_facing) override;
+	virtual void setAssetManager(AAssetManager* mgr) override;
+	virtual AAssetManager* getAssetManager() override;
 	virtual void setParameters(uint32_t params) override;
     virtual uint32_t getParameters() override;
 	virtual bool createTextures() override;
@@ -59,10 +61,16 @@ private:
     GLuint m_cameraFacing;
 
 	Camera* camera;
+
 	std::vector<Texture> pointTextures;
 	Mesh* pointMesh;
 	Shader* shaderProgramPoint;
 	glm::mat4 pointModel;
+
+	std::vector<Texture> imgTextures;
+	Mesh* imgMesh;
+	Shader* shaderProgramImg;
+	glm::mat4 imgModel;
 };
 
 #endif //_GL_VIDEO_RENDERER_YUV_H_

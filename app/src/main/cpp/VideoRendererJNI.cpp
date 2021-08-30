@@ -2,6 +2,8 @@
 #include "VideoRendererContext.h"
 
 #include <android/native_window_jni.h>
+#include <android/asset_manager_jni.h>
+#include <android/asset_manager.h>
 
 JCMCPRV(void, create)(JNIEnv * env, jobject obj, jint type)
 {
@@ -19,7 +21,10 @@ JCMCPRV(void, init)(JNIEnv * env, jobject obj, jobject surface, jint width, jint
 
 	ANativeWindow *window = surface ? ANativeWindow_fromSurface(env, surface) : nullptr;
 
-    if (context) context->init(window, (size_t)width, (size_t)height);
+    if (context){
+        context->setAssetManager(asset_manager);
+        context->init(window, (size_t)width, (size_t)height);
+    }
 }
 
 JCMCPRV(void, render)(JNIEnv * env, jobject obj)
@@ -40,6 +45,11 @@ JCMCPRV(void, draw)(JNIEnv * env, jobject obj, jbyteArray data, jint width, jint
 	if (context) context->draw((uint8_t *)bufferPtr, (size_t)arrayLength, (size_t)width, (size_t)height, rotation, camera_facing);
 
 	env->ReleaseByteArrayElements(data, bufferPtr, 0);
+}
+
+JCMCPRV(void, setAssetManager)(JNIEnv * env, jobject obj, jobject mgr)
+{
+    asset_manager = AAssetManager_fromJava(env, mgr);
 }
 
 JCMCPRV(void, setParameters)(JNIEnv * env, jobject obj, jint params)

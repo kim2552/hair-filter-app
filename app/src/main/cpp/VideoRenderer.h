@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <memory>
 #include <android/native_window.h>
+#include <android/asset_manager.h>
 
 enum { tYUV420=0, tYUV420_FILTER=1 };
 
@@ -29,6 +30,8 @@ public:
 	virtual void render() = 0;
 	virtual void updateFrame(const video_frame& frame, int camera_facing) = 0;
 	virtual void draw(uint8_t *buffer, size_t length, size_t width, size_t height, int rotation, int camera_facing) = 0;
+	virtual void setAssetManager(AAssetManager* mgr) = 0;
+	virtual AAssetManager* getAssetManager() = 0;
 	virtual void setParameters(uint32_t params) = 0;
 	virtual uint32_t getParameters() = 0;
 	virtual bool createTextures() = 0;
@@ -41,6 +44,9 @@ protected:
 	size_t m_height;
     size_t m_backingWidth;
     size_t m_backingHeight;
+
+    AAssetManager* assetManager;
+
 	uint32_t m_params;
 	int m_rotation;
 

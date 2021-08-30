@@ -5,6 +5,7 @@
 
 #include <memory>
 #include <jni.h>
+#include <android/asset_manager.h>
 
 class VideoRendererContext
 {
@@ -20,6 +21,8 @@ public:
     void init(ANativeWindow* window, size_t width, size_t height);
 	void render();
 	void draw(uint8_t *buffer, size_t length, size_t width, size_t height, int rotation, int camera_facing);
+	void setAssetManager(AAssetManager* mgr);
+	AAssetManager* getAssetManager();
 	void setParameters(uint32_t params);
 	uint32_t getParameters();
 
@@ -32,6 +35,8 @@ private:
     std::unique_ptr<VideoRenderer> m_pVideoRenderer;
 
 	static jni_fields_t jni_fields;
+
+	AAssetManager* m_assetManager;
 };
 
 #endif // _H_VIDEO_RENDERER_CONTEXT_

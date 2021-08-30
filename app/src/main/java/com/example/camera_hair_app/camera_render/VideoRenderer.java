@@ -1,5 +1,6 @@
 package com.example.camera_hair_app.camera_render;
 
+import android.content.res.AssetManager;
 import android.view.Surface;
 
 public abstract class VideoRenderer {
@@ -19,6 +20,7 @@ public abstract class VideoRenderer {
     protected native void init(Surface surface, int width, int height);
     protected native void render();
     protected native void draw(byte[] data, int width, int height, int rotation, int camera_facing);
+    protected native void setAssetManager(AssetManager mgr);
     protected native void setParameters(int params);
     protected native int getParameters();
 

@@ -17,6 +17,7 @@
 #include <cerrno>
 
 #include "globals.h"
+#include "GLShaders.h"
 
 std::string get_file_contents(const char* filename);
 

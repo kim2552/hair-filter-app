@@ -17,7 +17,7 @@ public:
     const char* type;
     GLuint unit;
 
-    Texture(const char* image, const char* texType, GLuint slot);
+    Texture(unsigned char* image, int len, const char* texType, GLuint slot);
 
     Texture(unsigned char* bytes, const char* texType, GLuint slot, int widthImg, int heightImg, int numColCh);
 

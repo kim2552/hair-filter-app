@@ -2,6 +2,7 @@ package com.example.camera_hair_app.camera_activity;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.content.res.AssetManager;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.util.Log;
@@ -25,15 +26,19 @@ public class GLViewActivity extends BaseViewActivity implements ActivityCompat.O
     private GLVideoRenderer mVideoRenderer;
     private int mFilter = 0;
 
+    private AssetManager assetManager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.i(TAG,"onCreate");
         setContentView(R.layout.activity_glview);
 
+        assetManager = this.getApplicationContext().getResources().getAssets();
+
         GLSurfaceView glSurfaceView = findViewById(R.id.gl_surface_view);
         mVideoRenderer = new GLVideoRenderer();
-        mVideoRenderer.init(glSurfaceView);
+        mVideoRenderer.init(glSurfaceView, assetManager);
 
         AspectFrameLayout layout = (AspectFrameLayout) findViewById(R.id.preview);
         layout.setAspectRatio((double) 9/16);

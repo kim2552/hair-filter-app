@@ -1,5 +1,6 @@
 package com.example.camera_hair_app.camera_render;
 
+import android.content.res.AssetManager;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 
@@ -12,7 +13,10 @@ public class GLVideoRenderer extends VideoRenderer implements GLSurfaceView.Rend
 
     public GLVideoRenderer() { create(Type.GL_YUV420_FILTER.getValue()); }
 
-    public void init(GLSurfaceView glSurface){
+    public void init(GLSurfaceView glSurface, AssetManager mgr){
+        //Pass AssetManager to JNI
+        setAssetManager(mgr);
+
         mGLSurface = glSurface;
 
         //Create an OpenGL ES 2 context
