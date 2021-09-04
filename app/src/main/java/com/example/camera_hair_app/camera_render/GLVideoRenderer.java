@@ -19,8 +19,8 @@ public class GLVideoRenderer extends VideoRenderer implements GLSurfaceView.Rend
 
         mGLSurface = glSurface;
 
-        //Create an OpenGL ES 2 context
-        mGLSurface.setEGLContextClientVersion(2);
+        //Create an OpenGL ES 3 context
+        mGLSurface.setEGLContextClientVersion(3);
         mGLSurface.setRenderer(this);
         mGLSurface.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
     }

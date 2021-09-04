@@ -21,6 +21,7 @@ public:
 	virtual void setAssetManager(AAssetManager* mgr) override;
 	virtual AAssetManager* getAssetManager() override;
 	virtual void setParameters(uint32_t params) override;
+	void convertYUVRGB(uint8_t *dst, uint8_t *src, size_t length, size_t width, size_t height) override;
     virtual uint32_t getParameters() override;
 	virtual bool createTextures() override;
 	virtual bool updateTextures() override;
@@ -35,6 +36,8 @@ protected:
 	GLuint m_pixelShader;
 private:
 	std::unique_ptr<uint8_t[]> m_pDataY;
+
+	std::unique_ptr<uint8_t[]> m_pRgbImage;
 
     uint8_t * m_pDataU;
     uint8_t * m_pDataV;

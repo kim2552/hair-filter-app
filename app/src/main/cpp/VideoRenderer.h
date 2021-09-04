@@ -33,6 +33,7 @@ public:
 	virtual void setAssetManager(AAssetManager* mgr) = 0;
 	virtual AAssetManager* getAssetManager() = 0;
 	virtual void setParameters(uint32_t params) = 0;
+	virtual void convertYUVRGB(uint8_t *dst, uint8_t *src, size_t length, size_t width, size_t height) = 0;
 	virtual uint32_t getParameters() = 0;
 	virtual bool createTextures() = 0;
 	virtual bool updateTextures() = 0;

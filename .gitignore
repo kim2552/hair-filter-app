@@ -17,3 +17,4 @@ local.properties
 .cdep
 cdep.sha256
 /opencv
+/openCVLibrary340dev

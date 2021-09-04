@@ -22,10 +22,10 @@ static const float kTextureCoords[8] = {
 // Vertices coordinates
 Vertex imgVerts[] =
 		{ //               COORDINATES           /            NORMALS          /           COLORS         /       TEXCOORDS         //
-				Vertex{glm::vec3(-1.0f, 1.0f,  0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 0.0f)},
-				Vertex{glm::vec3(-1.0f, -1.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 1.0f)},
-				Vertex{glm::vec3(1.0f, -1.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 1.0f)},
-				Vertex{glm::vec3(1.0f, 1.0f,  0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 0.0f)}
+				Vertex{glm::vec3(-1.0f, 0.75f,  0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 0.0f)},
+				Vertex{glm::vec3(-1.0f, -0.75f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 1.0f)},
+				Vertex{glm::vec3(1.0f, -0.75f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 1.0f)},
+				Vertex{glm::vec3(1.0f, 0.75f,  0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 0.0f)}
 		};
 
 // Indices for vertices order
@@ -38,10 +38,10 @@ static const GLuint imgInds[] =
 // Vertices coordinates
 static const Vertex pointVerts[4] =
 		{ //               COORDINATES           /            NORMALS          /           COLORS         /       TEXCOORDS         //
-				Vertex{glm::vec3(-0.5f, 0.5f,  0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 0.0f)},
-				Vertex{glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 1.0f)},
-				Vertex{glm::vec3(0.5f, -0.5f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 1.0f)},
-				Vertex{glm::vec3(0.5f, 0.5f,  0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 0.0f)}
+				Vertex{glm::vec3(-1.0f, 1.0f,  0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 0.0f)},
+				Vertex{glm::vec3(-1.0f, -1.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 1.0f)},
+				Vertex{glm::vec3(1.0f, -1.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 1.0f)},
+				Vertex{glm::vec3(1.0f, 1.0f,  0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 0.0f)}
 		};
 
 // Indices for vertices order
@@ -85,6 +85,7 @@ GLVideoRendererYUV420::~GLVideoRendererYUV420()
 	delete_program(m_program);
 }
 
+// GLVideoRenderer Initialization - occurs on application surface changed!
 void GLVideoRendererYUV420::init(ANativeWindow* window, size_t width, size_t height)
 {
     m_backingWidth = width;
@@ -132,14 +133,15 @@ void GLVideoRendererYUV420::init(ANativeWindow* window, size_t width, size_t hei
     //TODO::Move this somewhere else
     shaderProgramPoint = new Shader(pointvert, pointfrag);
 	shaderProgramImg = new Shader(imagevert, imagefrag);
-    camera = new Camera(m_backingWidth, m_backingHeight, glm::vec3(0.0,0.0,2.5));
+    camera = new Camera(m_backingWidth, m_backingHeight, glm::vec3(0.0,0.0,2.415));
+	camera->updateMatrix(45.0f, 0.1f, 100.0f);
 
 	unsigned char* redpng;
 	int file_size;
 	AAssetDir* assetDirImg = AAssetManager_openDir(assetManager, "colors");
 	while ((filename = AAssetDir_getNextFileName(assetDirImg)) != NULL) {
-		if(strcmp(filename, "red.png") == 0){
-			AAsset* asset = AAssetManager_open(assetManager, "colors/red.png", AASSET_MODE_UNKNOWN);
+		if(strcmp(filename, "lol.png") == 0){
+			AAsset* asset = AAssetManager_open(assetManager, "colors/lol.png", AASSET_MODE_UNKNOWN);
 			file_size = AAsset_getLength(asset);
 			redpng = (unsigned char*) malloc (sizeof(unsigned char)*file_size);
 			AAsset_read(asset,redpng,file_size);
@@ -158,44 +160,54 @@ void GLVideoRendererYUV420::init(ANativeWindow* window, size_t width, size_t hei
     pointMesh = new Mesh(pVerts,pInds,pointTextures);
 
 	// Activate shader for Face Mask and configure the model matrix
-	shaderProgramPoint->Activate();
+//	shaderProgramPoint->Activate();
 	pointModel = glm::mat4(1.0f);
-//	pointModel = glm::scale(pointModel, glm::vec3(1.0/20.0, 1.0/20.0, 1.0/20.0));
-	glm::mat4 translation = glm::translate(glm::mat4(1.0), glm::vec3(0.0, 0.0, -0.5));
+	pointModel = glm::scale(pointModel, glm::vec3(1.0/20.0, 1.0/20.0, 1.0/20.0));
+	glm::mat4 translation = glm::translate(glm::mat4(1.0), glm::vec3(0.0, 0.0, 0.1));
 	pointModel = translation * pointModel;
 
 	// Activate shader for Image and configure the model matrix
-	shaderProgramImg->Activate();
-	glm::mat4 imgModel = glm::mat4(1.0f);
+//	shaderProgramImg->Activate();
+	imgModel = glm::mat4(1.0f);
 	imgModel = glm::rotate(imgModel, glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f));	// Flip the image
-	imgModel = glm::rotate(imgModel, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));	// Flip the image
-	for (size_t i = 0; i < 4; i++) {		// Height stays as 2.0, Width needs to change based on aspect ratio
-		imgVerts[i].position.x *= (float)m_backingWidth / (float)m_backingHeight;
-	}
-	glm::mat4 tr = glm::translate(glm::mat4(1.0), glm::vec3(0.0, 0.0, -0.0));
-	imgModel = tr * imgModel;
+//	imgModel = glm::rotate(imgModel, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));	// Flip the image
+	imgModel = glm::rotate(imgModel, glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));	// Flip the image
+
+//	glm::mat4 tr = glm::translate(glm::mat4(1.0), glm::vec3(0.0, 0.0, 0.0));
+//	imgModel = tr * imgModel;
+	glEnable(GL_DEPTH_TEST);
 }
 
+// GLVideoRenderer render - occurs every new camera image
 void GLVideoRendererYUV420::render()
 {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	//TODO:: Use existing shaders to show the camera screen
+//	if (!updateTextures() || !useProgram()) return;
+//
+//	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
 	// Image texture data
-	imgTextures.clear();	//TODO::Convert YUV to RGB image and pass it to imgTextures
-	imgTextures.push_back(Texture(m_pDataY.get(),"diffuse", 0, m_backingWidth, m_backingHeight, 1));						// Texture object deletes imgBytes afterwards
-	// Store mesh data in vectors for the mesh
-	std::vector <Vertex> iVerts(imgVerts, imgVerts + sizeof(imgVerts) / sizeof(Vertex));
-	std::vector <GLuint> iInds(imgInds, imgInds + sizeof(imgInds) / sizeof(GLuint));
-	// Create image mesh
-	Mesh imgMesh(iVerts, iInds, imgTextures);
+	if(m_pRgbImage != nullptr){
 
-	imgMesh.Draw(*shaderProgramImg, *camera, imgModel);		// Draw the image
+		imgTextures.clear();
+		imgTextures.push_back(Texture(m_pRgbImage.get(),"diffuse", 0, m_width, m_height, 4));						// Texture object deletes imgBytes afterwards
+		// Store mesh data in vectors for the mesh
+		std::vector <Vertex> iVerts(imgVerts, imgVerts + sizeof(imgVerts) / sizeof(Vertex));
+		std::vector <GLuint> iInds(imgInds, imgInds + sizeof(imgInds) / sizeof(GLuint));
+		// Create image mesh
+		imgMesh = new Mesh (iVerts, iInds, imgTextures);
+
+		imgMesh->Draw(*shaderProgramImg, *camera, imgModel);		// Draw the image
+
+		for(auto it : imgTextures){
+			it.Delete();
+		}
+	}
+
 	pointMesh->Draw(*shaderProgramPoint, *camera, pointModel);
-
-    if (!updateTextures() || !useProgram()) return;
-
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 }
 
 // Reads data from src to dst mirrored
@@ -310,10 +322,19 @@ void GLVideoRendererYUV420::updateFrame(const video_frame& frame, int camera_fac
 	isDirty = true;
 }
 
+// GLVideoRenderer draw - occurs every preview frame callback!
 void GLVideoRendererYUV420::draw(uint8_t *buffer, size_t length, size_t width, size_t height, int rotation, int camera_facing)
 {
     m_length = length;
     m_rotation = rotation;
+
+	if (m_pRgbImage == nullptr || m_width != width || m_height != height) {
+		m_pRgbImage = std::make_unique<uint8_t[]>(width * height * 4);
+	}
+	if(m_pRgbImage != nullptr){
+		convertYUVRGB(m_pRgbImage.get(), buffer, length, width, height);
+	}
+
 
 	video_frame frame;
 	frame.width = width;
@@ -325,6 +346,54 @@ void GLVideoRendererYUV420::draw(uint8_t *buffer, size_t length, size_t width, s
 	frame.v = buffer + width * height * 5 / 4;
 
 	updateFrame(frame, camera_facing);
+}
+
+void GLVideoRendererYUV420::convertYUVRGB(uint8_t *dst, uint8_t *src, size_t length, size_t width, size_t height)
+{
+	uint8_t* pY = src;
+	uint8_t* pU = src + width * height;
+	uint8_t* pV = src + width * height * 5/4;
+
+	size_t msizeY = width * height;
+	size_t msizeU = width * height / 4;
+	size_t msizeV = width * height / 4;
+
+//	pY += msizeY-(2*width);
+//	pU += msizeU-width;
+//	pV += msizeV-width;
+
+	int rgbIndx=0;
+	int uvIndx=0;
+	for (int h = 0; h < height/2; h++)
+	{
+		int yIndx = 0;
+
+		for(int w = 0; w < width; w++){
+			dst[rgbIndx+3] = 255;
+			dst[rgbIndx+1] = pY[yIndx];// + 1.402 * (pV[uvIndx] - 128);
+			dst[rgbIndx+2] = pY[yIndx];// - 0.34414 * (pU[uvIndx] - 128) - 0.71414 * (pV[uvIndx]-128);
+			dst[rgbIndx] = pY[yIndx];// + 1.772 * (pU[uvIndx] - 128);
+
+			dst[rgbIndx+7] = 255;
+			dst[rgbIndx+5] = pY[yIndx+1];// + 1.402 * (pV[uvIndx] - 128);
+			dst[rgbIndx+6] = pY[yIndx+1];// - 0.34414 * (pU[uvIndx] - 128) - 0.71414 * (pV[uvIndx]-128);
+			dst[rgbIndx+4] = pY[yIndx+1];// + 1.772 * (pU[uvIndx] - 128);
+
+			dst[rgbIndx+width+3] = 255;
+			dst[rgbIndx+width+1] = pY[yIndx+width];// + 1.402 * (pV[uvIndx] - 128);
+			dst[rgbIndx+width+2] = pY[yIndx+width];// - 0.34414 * (pU[uvIndx] - 128) - 0.71414 * (pV[uvIndx]-128);
+			dst[rgbIndx+width] = pY[yIndx+width];// + 1.772 * (pU[uvIndx] - 128);
+
+			dst[rgbIndx+width+7] = 255;
+			dst[rgbIndx+width+5] = pY[yIndx+width+1];// + 1.402 * (pV[uvIndx] - 128);
+			dst[rgbIndx+width+6] = pY[yIndx+width+1];// - 0.34414 * (pU[uvIndx] - 128) - 0.71414 * (pV[uvIndx]-128);
+			dst[rgbIndx+width+4] = pY[yIndx+width+1];// + 1.772 * (pU[uvIndx] - 128);
+			rgbIndx+=8;
+			yIndx+=2;
+			uvIndx+=1;
+		}
+		pY += 2*width;
+	}
 }
 
 void GLVideoRendererYUV420::setAssetManager(AAssetManager *mgr)

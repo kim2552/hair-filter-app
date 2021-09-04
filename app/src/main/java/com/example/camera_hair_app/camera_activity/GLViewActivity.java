@@ -41,7 +41,7 @@ public class GLViewActivity extends BaseViewActivity implements ActivityCompat.O
         mVideoRenderer.init(glSurfaceView, assetManager);
 
         AspectFrameLayout layout = (AspectFrameLayout) findViewById(R.id.preview);
-        layout.setAspectRatio((double) 9/16);
+        layout.setAspectRatio((double) 3/4);
         layout.addView(mPreview);
 
         Button btnFlipCamera = (Button) findViewById(R.id.flip_camera);
