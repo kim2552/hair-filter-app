@@ -21,7 +21,6 @@ public:
 	virtual void setAssetManager(AAssetManager* mgr) override;
 	virtual AAssetManager* getAssetManager() override;
 	virtual void setParameters(uint32_t params) override;
-	void convertYUVRGB(uint8_t *dst, uint8_t *src, size_t length, size_t width, size_t height) override;
     virtual uint32_t getParameters() override;
 	virtual bool createTextures() override;
 	virtual bool updateTextures() override;
@@ -64,6 +63,8 @@ private:
     GLuint m_cameraFacing;
 
 	Camera* camera;
+
+	std::vector<Texture> yuvImgTextures;
 
 	std::vector<Texture> pointTextures;
 	Mesh* pointMesh;

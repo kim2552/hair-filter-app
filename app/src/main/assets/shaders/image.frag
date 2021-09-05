@@ -12,7 +12,9 @@ in vec3 color;
 // Imports the texture coordinates from the Vertex Shader
 in vec2 texCoord;
 
-
+uniform sampler2D s_textureY;
+uniform sampler2D s_textureU;
+uniform sampler2D s_textureV;
 
 // Gets the Texture Units from the main function
 uniform sampler2D diffuse0;
@@ -26,6 +28,13 @@ uniform vec3 camPos;
 
 void main()
 {
-	// outputs final color
-	FragColor = texture(diffuse0, texCoord) * vec4(color, 1.0);
+    float y=texture(s_textureY,texCoord).r;
+    float u=texture(s_textureU,texCoord).r;
+    float v=texture(s_textureV,texCoord).r;
+    u=u-0.5;
+    v=v-0.5;
+    float r=y+1.403*v;
+    float g=y-0.344*u-0.714*v;
+    float b=y+1.770*u;
+    FragColor=vec4(r,g,b,1.0);
 }

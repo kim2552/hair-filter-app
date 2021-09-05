@@ -5,10 +5,10 @@
 
 // Vertices for a full screen quad.
 static const float kVertices[8] = {
-  -1.f, 1.f,
-  -1.f, -1.f,
-  1.f, 1.f,
-  1.f, -1.f
+  -1.333f, 1.f,
+  -1.333f, -1.f,
+  1.333f, 1.f,
+  1.333f, -1.f
 };
 
 // Texture coordinates for mapping entire texture.
@@ -91,123 +91,25 @@ void GLVideoRendererYUV420::init(ANativeWindow* window, size_t width, size_t hei
     m_backingWidth = width;
     m_backingHeight = height;
 
-    char* pointvert = (char*)NULL;
-    char* pointfrag = (char*)NULL;
-    char* imagevert = (char*)NULL;
-    char* imagefrag = (char*)NULL;
-
-	AAssetDir* assetDir = AAssetManager_openDir(assetManager, "shaders");
-	const char* filename = (const char*)NULL;
-	while ((filename = AAssetDir_getNextFileName(assetDir)) != NULL) {
-		if(strcmp(filename, "point.vert") == 0){
-			AAsset* asset = AAssetManager_open(assetManager, "shaders/point.vert", AASSET_MODE_UNKNOWN);
-			long size = AAsset_getLength(asset);
-			pointvert = (char*) malloc (sizeof(char)*size);
-			AAsset_read(asset,pointvert,size);
-			AAsset_close(asset);
-		}
-		if(strcmp(filename, "point.frag") == 0){
-			AAsset* asset = AAssetManager_open(assetManager, "shaders/point.frag", AASSET_MODE_UNKNOWN);
-			long size = AAsset_getLength(asset);
-			pointfrag = (char*) malloc (sizeof(char)*size);
-			AAsset_read(asset,pointfrag,size);
-			AAsset_close(asset);
-		}
-		if(strcmp(filename, "image.vert") == 0){
-			AAsset* asset = AAssetManager_open(assetManager, "shaders/image.vert", AASSET_MODE_UNKNOWN);
-			long size = AAsset_getLength(asset);
-			imagevert = (char*) malloc (sizeof(char)*size);
-			AAsset_read(asset,imagevert,size);
-			AAsset_close(asset);
-		}
-		if(strcmp(filename, "image.frag") == 0){
-			AAsset* asset = AAssetManager_open(assetManager, "shaders/image.frag", AASSET_MODE_UNKNOWN);
-			long size = AAsset_getLength(asset);
-			imagefrag = (char*) malloc (sizeof(char)*size);
-			AAsset_read(asset,imagefrag,size);
-			AAsset_close(asset);
-		}
-	}
-	AAssetDir_close(assetDir);
-
-    //TODO::Move this somewhere else
-    shaderProgramPoint = new Shader(pointvert, pointfrag);
-	shaderProgramImg = new Shader(imagevert, imagefrag);
     camera = new Camera(m_backingWidth, m_backingHeight, glm::vec3(0.0,0.0,2.415));
 	camera->updateMatrix(45.0f, 0.1f, 100.0f);
-
-	unsigned char* redpng;
-	int file_size;
-	AAssetDir* assetDirImg = AAssetManager_openDir(assetManager, "colors");
-	while ((filename = AAssetDir_getNextFileName(assetDirImg)) != NULL) {
-		if(strcmp(filename, "lol.png") == 0){
-			AAsset* asset = AAssetManager_open(assetManager, "colors/lol.png", AASSET_MODE_UNKNOWN);
-			file_size = AAsset_getLength(asset);
-			redpng = (unsigned char*) malloc (sizeof(unsigned char)*file_size);
-			AAsset_read(asset,redpng,file_size);
-			AAsset_close(asset);
-		}
-
-	}
-	AAssetDir_close(assetDirImg);
-
-    pointTextures.push_back(Texture(redpng,file_size,"diffuse",0));
-
-	// Store mesh data in vectors for the mesh
-	std::vector <Vertex> pVerts(pointVerts, pointVerts + sizeof(pointVerts) / sizeof(Vertex));
-	std::vector <GLuint> pInds(pointInds, pointInds + sizeof(pointInds) / sizeof(GLuint));
-
-    pointMesh = new Mesh(pVerts,pInds,pointTextures);
-
-	// Activate shader for Face Mask and configure the model matrix
-//	shaderProgramPoint->Activate();
-	pointModel = glm::mat4(1.0f);
-	pointModel = glm::scale(pointModel, glm::vec3(1.0/20.0, 1.0/20.0, 1.0/20.0));
-	glm::mat4 translation = glm::translate(glm::mat4(1.0), glm::vec3(0.0, 0.0, 0.1));
-	pointModel = translation * pointModel;
-
-	// Activate shader for Image and configure the model matrix
-//	shaderProgramImg->Activate();
-	imgModel = glm::mat4(1.0f);
-	imgModel = glm::rotate(imgModel, glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f));	// Flip the image
-//	imgModel = glm::rotate(imgModel, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));	// Flip the image
-	imgModel = glm::rotate(imgModel, glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));	// Flip the image
-
-//	glm::mat4 tr = glm::translate(glm::mat4(1.0), glm::vec3(0.0, 0.0, 0.0));
-//	imgModel = tr * imgModel;
-	glEnable(GL_DEPTH_TEST);
 }
 
 // GLVideoRenderer render - occurs every new camera image
 void GLVideoRendererYUV420::render()
 {
+	glEnable(GL_DEPTH_TEST);
 	glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	//TODO:: Use existing shaders to show the camera screen
-//	if (!updateTextures() || !useProgram()) return;
-//
-//	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	if (!updateTextures() || !useProgram()) return;
 
-	// Image texture data
-	if(m_pRgbImage != nullptr){
+	std::vector <Vertex> iVerts(imgVerts, imgVerts + sizeof(imgVerts) / sizeof(Vertex));
+	std::vector <GLuint> iInds(imgInds, imgInds + sizeof(imgInds) / sizeof(GLuint));
+	// Create image mesh
+	imgMesh = new Mesh (iVerts, iInds, yuvImgTextures);
 
-		imgTextures.clear();
-		imgTextures.push_back(Texture(m_pRgbImage.get(),"diffuse", 0, m_width, m_height, 4));						// Texture object deletes imgBytes afterwards
-		// Store mesh data in vectors for the mesh
-		std::vector <Vertex> iVerts(imgVerts, imgVerts + sizeof(imgVerts) / sizeof(Vertex));
-		std::vector <GLuint> iInds(imgInds, imgInds + sizeof(imgInds) / sizeof(GLuint));
-		// Create image mesh
-		imgMesh = new Mesh (iVerts, iInds, imgTextures);
-
-		imgMesh->Draw(*shaderProgramImg, *camera, imgModel);		// Draw the image
-
-		for(auto it : imgTextures){
-			it.Delete();
-		}
-	}
-
-	pointMesh->Draw(*shaderProgramPoint, *camera, pointModel);
+	imgMesh->Draw(*shaderProgramImg, *camera, imgModel);		// Draw the image
 }
 
 // Reads data from src to dst mirrored
@@ -328,14 +230,6 @@ void GLVideoRendererYUV420::draw(uint8_t *buffer, size_t length, size_t width, s
     m_length = length;
     m_rotation = rotation;
 
-	if (m_pRgbImage == nullptr || m_width != width || m_height != height) {
-		m_pRgbImage = std::make_unique<uint8_t[]>(width * height * 4);
-	}
-	if(m_pRgbImage != nullptr){
-		convertYUVRGB(m_pRgbImage.get(), buffer, length, width, height);
-	}
-
-
 	video_frame frame;
 	frame.width = width;
 	frame.height = height;
@@ -346,54 +240,6 @@ void GLVideoRendererYUV420::draw(uint8_t *buffer, size_t length, size_t width, s
 	frame.v = buffer + width * height * 5 / 4;
 
 	updateFrame(frame, camera_facing);
-}
-
-void GLVideoRendererYUV420::convertYUVRGB(uint8_t *dst, uint8_t *src, size_t length, size_t width, size_t height)
-{
-	uint8_t* pY = src;
-	uint8_t* pU = src + width * height;
-	uint8_t* pV = src + width * height * 5/4;
-
-	size_t msizeY = width * height;
-	size_t msizeU = width * height / 4;
-	size_t msizeV = width * height / 4;
-
-//	pY += msizeY-(2*width);
-//	pU += msizeU-width;
-//	pV += msizeV-width;
-
-	int rgbIndx=0;
-	int uvIndx=0;
-	for (int h = 0; h < height/2; h++)
-	{
-		int yIndx = 0;
-
-		for(int w = 0; w < width; w++){
-			dst[rgbIndx+3] = 255;
-			dst[rgbIndx+1] = pY[yIndx];// + 1.402 * (pV[uvIndx] - 128);
-			dst[rgbIndx+2] = pY[yIndx];// - 0.34414 * (pU[uvIndx] - 128) - 0.71414 * (pV[uvIndx]-128);
-			dst[rgbIndx] = pY[yIndx];// + 1.772 * (pU[uvIndx] - 128);
-
-			dst[rgbIndx+7] = 255;
-			dst[rgbIndx+5] = pY[yIndx+1];// + 1.402 * (pV[uvIndx] - 128);
-			dst[rgbIndx+6] = pY[yIndx+1];// - 0.34414 * (pU[uvIndx] - 128) - 0.71414 * (pV[uvIndx]-128);
-			dst[rgbIndx+4] = pY[yIndx+1];// + 1.772 * (pU[uvIndx] - 128);
-
-			dst[rgbIndx+width+3] = 255;
-			dst[rgbIndx+width+1] = pY[yIndx+width];// + 1.402 * (pV[uvIndx] - 128);
-			dst[rgbIndx+width+2] = pY[yIndx+width];// - 0.34414 * (pU[uvIndx] - 128) - 0.71414 * (pV[uvIndx]-128);
-			dst[rgbIndx+width] = pY[yIndx+width];// + 1.772 * (pU[uvIndx] - 128);
-
-			dst[rgbIndx+width+7] = 255;
-			dst[rgbIndx+width+5] = pY[yIndx+width+1];// + 1.402 * (pV[uvIndx] - 128);
-			dst[rgbIndx+width+6] = pY[yIndx+width+1];// - 0.34414 * (pU[uvIndx] - 128) - 0.71414 * (pV[uvIndx]-128);
-			dst[rgbIndx+width+4] = pY[yIndx+width+1];// + 1.772 * (pU[uvIndx] - 128);
-			rgbIndx+=8;
-			yIndx+=2;
-			uvIndx+=1;
-		}
-		pY += 2*width;
-	}
 }
 
 void GLVideoRendererYUV420::setAssetManager(AAssetManager *mgr)
@@ -420,80 +266,32 @@ bool GLVideoRendererYUV420::createTextures()
     GLsizei widthY = (GLsizei)m_width;
     GLsizei heightY = (GLsizei)m_height;
 
-	glActiveTexture(GL_TEXTURE0);
-	glGenTextures(1, &m_textureIdY);
-	glBindTexture(GL_TEXTURE_2D, m_textureIdY);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, widthY, heightY, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, NULL);
+	GLsizei widthUV = (GLsizei)m_width / 2;
+	GLsizei heightUV = (GLsizei)m_height / 2;
 
-    if (!m_textureIdY)
-    {
-        check_gl_error("Create Y texture");
-        return false;
-    }
+	if(yuvImgTextures.size() > 0){			// Garbage collection
+		for(auto txt : yuvImgTextures){
+			txt.Delete();
+		}
+	}
+	yuvImgTextures.clear();
 
-	GLsizei widthU = (GLsizei)m_width / 2;
-    GLsizei heightU = (GLsizei)m_height / 2;
-
-	glActiveTexture(GL_TEXTURE1);
-	glGenTextures(1, &m_textureIdU);
-	glBindTexture(GL_TEXTURE_2D, m_textureIdU);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, widthU, heightU, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, NULL);
-
-    if (!m_textureIdU)
-    {
-        check_gl_error("Create U texture");
-        return false;
-    }
-
-    GLsizei widthV = (GLsizei)m_width / 2;
-    GLsizei heightV = (GLsizei)m_height / 2;
-
-	glActiveTexture(GL_TEXTURE2);
-	glGenTextures(1, &m_textureIdV);
-	glBindTexture(GL_TEXTURE_2D, m_textureIdV);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, widthV, heightV, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, NULL);
-
-    if (!m_textureIdV)
-    {
-        check_gl_error("Create V texture");
-        return false;
-    }
+    yuvImgTextures.push_back(Texture(m_pDataY.get(),"s_textureY",0,widthY,heightY,1));		// Y texture
+	yuvImgTextures.push_back(Texture(m_pDataU,"s_textureU",1,widthUV,heightUV,1));	// U texture
+	yuvImgTextures.push_back(Texture(m_pDataV,"s_textureV",2,widthUV,heightUV,1));	// V texture
 
 	return true;
 }
 
 bool GLVideoRendererYUV420::updateTextures()
 {
-	if (!m_textureIdY && !m_textureIdU && !m_textureIdV && !createTextures()) return false;
+	if (!createTextures()) return false;
 
 	if (isDirty)
     {
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, m_textureIdY);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, (GLsizei)m_width, (GLsizei)m_height, 0,
-                     GL_LUMINANCE, GL_UNSIGNED_BYTE, m_pDataY.get());
-
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, m_textureIdU);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, (GLsizei)m_width / 2, (GLsizei)m_height / 2, 0,
-                     GL_LUMINANCE, GL_UNSIGNED_BYTE, m_pDataU);
-
-		glActiveTexture(GL_TEXTURE2);
-		glBindTexture(GL_TEXTURE_2D, m_textureIdV);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, (GLsizei)m_width / 2, (GLsizei)m_height / 2, 0,
-                     GL_LUMINANCE, GL_UNSIGNED_BYTE, m_pDataV);
+//		yuvImgTextures[0].updateTexture(m_pDataY.get());
+//		yuvImgTextures[1].updateTexture(m_pDataU);
+//		yuvImgTextures[2].updateTexture(m_pDataV);
 
         isDirty = false;
 
@@ -505,61 +303,71 @@ bool GLVideoRendererYUV420::updateTextures()
 
 void GLVideoRendererYUV420::deleteTextures()
 {
-	if (m_textureIdY)
-    {
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, 0);
-		glDeleteTextures(1, &m_textureIdY);
-
-		m_textureIdY = 0;
+	if(yuvImgTextures.size() > 0){			// Garbage collection
+		for(auto txt : yuvImgTextures){
+			txt.Delete();
+		}
 	}
-
-	if (m_textureIdU)
-    {
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, 0);
-		glDeleteTextures(1, &m_textureIdU);
-
-		m_textureIdU = 0;
-	}
-
-	if (m_textureIdV)
-    {
-		glActiveTexture(GL_TEXTURE2);
-		glBindTexture(GL_TEXTURE_2D, 0);
-		glDeleteTextures(1, &m_textureIdV);
-
-		m_textureIdV = 0;
-	}
+	yuvImgTextures.clear();
 }
 
 int GLVideoRendererYUV420::createProgram(const char *pVertexSource, const char *pFragmentSource)
 {
-	m_program = create_program(pVertexSource, pFragmentSource, m_vertexShader, m_pixelShader);
+	char* pointvert = (char*)NULL;
+	char* pointfrag = (char*)NULL;
+	char* imagevert = (char*)NULL;
+	char* imagefrag = (char*)NULL;
 
-	if (!m_program)
+	AAssetDir* assetDir = AAssetManager_openDir(assetManager, "shaders");
+	const char* filename = (const char*)NULL;
+	while ((filename = AAssetDir_getNextFileName(assetDir)) != NULL) {
+		if(strcmp(filename, "point.vert") == 0){
+			AAsset* asset = AAssetManager_open(assetManager, "shaders/point.vert", AASSET_MODE_UNKNOWN);
+			long size = AAsset_getLength(asset);
+			pointvert = (char*) malloc (sizeof(char)*size);
+			AAsset_read(asset,pointvert,size);
+			AAsset_close(asset);
+		}
+		if(strcmp(filename, "point.frag") == 0){
+			AAsset* asset = AAssetManager_open(assetManager, "shaders/point.frag", AASSET_MODE_UNKNOWN);
+			long size = AAsset_getLength(asset);
+			pointfrag = (char*) malloc (sizeof(char)*size);
+			AAsset_read(asset,pointfrag,size);
+			AAsset_close(asset);
+		}
+		if(strcmp(filename, "image.vert") == 0){
+			AAsset* asset = AAssetManager_open(assetManager, "shaders/image.vert", AASSET_MODE_UNKNOWN);
+			long size = AAsset_getLength(asset);
+			imagevert = (char*) malloc (sizeof(char)*size);
+			AAsset_read(asset,imagevert,size);
+			AAsset_close(asset);
+		}
+		if(strcmp(filename, "image.frag") == 0){
+			AAsset* asset = AAssetManager_open(assetManager, "shaders/image.frag", AASSET_MODE_UNKNOWN);
+			long size = AAsset_getLength(asset);
+			imagefrag = (char*) malloc (sizeof(char)*size);
+			AAsset_read(asset,imagefrag,size);
+			AAsset_close(asset);
+		}
+	}
+	AAssetDir_close(assetDir);
+
+	//TODO::Move this somewhere else
+//	shaderProgramPoint = new Shader(pointvert, pointfrag);
+	shaderProgramImg = new Shader(imagevert, imagefrag);
+	if (!shaderProgramImg->ID)
     {
         check_gl_error("Create program");
 		LOGE("Could not create program.");
         return 0;
 	}
 
-	m_vertexPos = (GLuint)glGetAttribLocation(m_program, "position");
-	m_uniformProjection = glGetUniformLocation(m_program, "projection");
-    m_uniformRotation = glGetUniformLocation(m_program, "rotation");
-    m_uniformScale = glGetUniformLocation(m_program, "scale");
-	m_textureYLoc = glGetUniformLocation(m_program, "s_textureY");
-	m_textureULoc = glGetUniformLocation(m_program, "s_textureU");
-	m_textureVLoc = glGetUniformLocation(m_program, "s_textureV");
-	m_textureSize = glGetUniformLocation(m_program, "texSize");
-	m_textureLoc = (GLuint)glGetAttribLocation(m_program, "texcoord");
-
-	return m_program;
+	return shaderProgramImg->ID;
 }
 
 GLuint GLVideoRendererYUV420::useProgram()
 {
-	if (!m_program && !createProgram(kVertexShader, kFragmentShader))
+	if (!createProgram(kVertexShader, kFragmentShader))
     {
 		LOGE("Could not use program.");
 		return 0;
@@ -567,44 +375,46 @@ GLuint GLVideoRendererYUV420::useProgram()
 
 	if (isProgramChanged)
     {
-		glUseProgram(m_program);
+		const char* filename = (const char*)NULL;
+		unsigned char* redpng;
+		int file_size;
+		AAssetDir* assetDirImg = AAssetManager_openDir(assetManager, "colors");
+		while ((filename = AAssetDir_getNextFileName(assetDirImg)) != NULL) {
+			if(strcmp(filename, "lol.png") == 0){
+				AAsset* asset = AAssetManager_open(assetManager, "colors/lol.png", AASSET_MODE_UNKNOWN);
+				file_size = AAsset_getLength(asset);
+				redpng = (unsigned char*) malloc (sizeof(unsigned char)*file_size);
+				AAsset_read(asset,redpng,file_size);
+				AAsset_close(asset);
+			}
 
-        check_gl_error("Use program.");
-
-		glVertexAttribPointer(m_vertexPos, 2, GL_FLOAT, GL_FALSE, 0, kVertices);
-		glEnableVertexAttribArray(m_vertexPos);
-
-		float targetAspectRatio = (float)m_width / (float)m_height;
-
-		GLfloat projection[16];
-        mat4f_load_ortho(-1.0f, 1.0f, -targetAspectRatio, targetAspectRatio, -1.0f, 1.0f, projection);
-		glUniformMatrix4fv(m_uniformProjection, 1, GL_FALSE, projection);
-
-        GLfloat rotationZ[16];
-        mat4f_load_rotation_z(m_rotation, rotationZ);
-        glUniformMatrix4fv(m_uniformRotation, 1, 0, &rotationZ[0]);
-
-        float scaleFactor = aspect_ratio_correction(false, m_backingWidth, m_backingHeight, m_width, m_height);
-
-        GLfloat scale[16];
-        mat4f_load_scale(scaleFactor, scaleFactor, 1.0f, scale);
-        glUniformMatrix4fv(m_uniformScale, 1, 0, &scale[0]);
-
-		glUniform1i(m_textureYLoc, 0);
-		glUniform1i(m_textureULoc, 1);
-		glUniform1i(m_textureVLoc, 2);
-		glVertexAttribPointer(m_textureLoc, 2, GL_FLOAT, GL_FALSE, 0, kTextureCoords);
-		glEnableVertexAttribArray(m_textureLoc);
-
-		if (m_textureSize >= 0) {
-			GLfloat size[2];
-			size[0] = m_width;
-			size[1] = m_height;
-			glUniform2fv(m_textureSize, 1, &size[0]);
 		}
+		AAssetDir_close(assetDirImg);
+
+		pointTextures.push_back(Texture(redpng,file_size,"diffuse",0));
+
+		// Store mesh data in vectors for the mesh
+		std::vector <Vertex> pVerts(pointVerts, pointVerts + sizeof(pointVerts) / sizeof(Vertex));
+		std::vector <GLuint> pInds(pointInds, pointInds + sizeof(pointInds) / sizeof(GLuint));
+
+		pointMesh = new Mesh(pVerts,pInds,pointTextures);
+
+		// Activate shader for Face Mask and configure the model matrix
+		pointModel = glm::mat4(1.0f);
+		pointModel = glm::scale(pointModel, glm::vec3(1.0/20.0, 1.0/20.0, 1.0/20.0));
+		glm::mat4 translation = glm::translate(glm::mat4(1.0), glm::vec3(0.0, 0.0, 0.1));
+		pointModel = translation * pointModel;
+
+		// Activate shader for Image and configure the model matrix
+		imgModel = glm::mat4(1.0f);
+		if(m_cameraFacing == 0){
+			imgModel = glm::rotate(imgModel, glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f));	// Flip the image
+			imgModel = glm::rotate(imgModel, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));	// Flip the image
+		}
+		imgModel = glm::rotate(imgModel, glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));	// Flip the image
 
 		isProgramChanged = false;
 	}
 
-	return m_program;
+	return 1;
 }

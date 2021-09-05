@@ -4,6 +4,14 @@
 
 #include"Texture.h"
 
+Texture::Texture():
+    ID(0),
+    type(NULL),
+    unit(0),
+    m_width(0),
+    m_height(0)
+{};
+
 void Texture::configureTexture(unsigned char* bytes, const char* texType, GLuint slot, int widthImg, int heightImg, int numColCh)
 {
     // Assigns the type of the texture ot the texture object
@@ -15,6 +23,10 @@ void Texture::configureTexture(unsigned char* bytes, const char* texType, GLuint
     glActiveTexture(GL_TEXTURE0 + slot);
     unit = slot;
     glBindTexture(GL_TEXTURE_2D, ID);
+
+    // Save the width and height
+    m_width = widthImg;
+    m_height = heightImg;
 
     // Configures the type of algorithm that is used to make the image smaller or bigger
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -60,17 +72,17 @@ void Texture::configureTexture(unsigned char* bytes, const char* texType, GLuint
                 );
     else if (numColCh == 1)
         glTexImage2D
-                (
-                        GL_TEXTURE_2D,
-                        0,
-                        GL_RGBA,
-                        widthImg,
-                        heightImg,
-                        0,
-                        GL_RED,
-                        GL_UNSIGNED_BYTE,
-                        bytes
-                );
+            (
+                    GL_TEXTURE_2D,
+                    0,
+                    GL_LUMINANCE,
+                    widthImg,
+                    heightImg,
+                    0,
+                    GL_LUMINANCE,
+                    GL_UNSIGNED_BYTE,
+                    bytes
+            );
     else
         throw std::invalid_argument("Automatic Texture type recognition failed");
 
@@ -80,9 +92,6 @@ void Texture::configureTexture(unsigned char* bytes, const char* texType, GLuint
     // Interpolation for Mipmaps
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-
-    // Deletes the image data as it is already in the OpenGL Texture object
-//    stbi_image_free(bytes);
 
     // Unbinds the OpenGL Texture object so that it can't accidentally be modified
     glBindTexture(GL_TEXTURE_2D, 0);
@@ -98,6 +107,9 @@ Texture::Texture(unsigned char* image,int len, const char* texType, GLuint slot)
     unsigned char* bytes = stbi_load_from_memory(image, len, &widthImg, &heightImg, &numColCh, 0);
 
     configureTexture(bytes, texType, slot, widthImg, heightImg, numColCh);
+
+    // Deletes the image data as it is already in the OpenGL Texture object
+    stbi_image_free(bytes);
 }
 
 Texture::Texture(unsigned char* bytes, const char* texType, GLuint slot, int widthImg, int heightImg, int numColCh)
@@ -105,6 +117,13 @@ Texture::Texture(unsigned char* bytes, const char* texType, GLuint slot, int wid
     configureTexture(bytes, texType, slot, widthImg, heightImg, numColCh);
 }
 
+void Texture::updateTexture(unsigned char *bytes)
+{
+    glActiveTexture(GL_TEXTURE0+unit);
+    glBindTexture(GL_TEXTURE_2D, ID);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, (GLsizei)m_width, (GLsizei)m_height, 0,
+                 GL_LUMINANCE, GL_UNSIGNED_BYTE, bytes);
+}
 
 void Texture::texUnit(Shader& shader, const char* uniform, GLuint unit)
 {
