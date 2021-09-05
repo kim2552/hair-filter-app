@@ -40,6 +40,8 @@ target_include_directories(include INTERFACE ${SRC_DIR}/include)
 add_library(render INTERFACE)
 target_include_directories(render INTERFACE ${SRC_DIR}/render)
 
+add_library(face INTERFACE)
+target_include_directories(face INTERFACE ${SRC_DIR}/face)
 
 # Creates and names a library, sets it as either STATIC
 # or SHARED, and provides the relative paths to its source code.
@@ -70,7 +72,9 @@ add_library( # Sets the name of the library.
         ${SRC_DIR}/render/ShaderClass.cpp
         ${SRC_DIR}/render/Texture.cpp
         ${SRC_DIR}/render/Camera.cpp
-        ${SRC_DIR}/render/Mesh.cpp)
+        ${SRC_DIR}/render/Mesh.cpp
+
+        ${SRC_DIR}/face/FaceDetect.cpp)
 
 # Searches for a specified prebuilt library and stores the path as a
 # variable. Because CMake includes system libraries in the search path by
@@ -104,6 +108,7 @@ target_link_libraries( # Specifies the target library.
         ${GLESv3-lib}
         include
         render
+        face
         eos
         3rdparty)
 

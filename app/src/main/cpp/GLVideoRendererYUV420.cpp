@@ -75,8 +75,10 @@ GLVideoRendererYUV420::GLVideoRendererYUV420()
     , m_uniformRotation(0)
     , m_uniformScale(0)
     , m_cameraFacing(0)
+    , faceDetect(NULL)
 {
 	isProgramChanged = true;
+	shaderProgramsCreated = false;
 }
 
 GLVideoRendererYUV420::~GLVideoRendererYUV420()
@@ -107,9 +109,11 @@ void GLVideoRendererYUV420::render()
 	std::vector <Vertex> iVerts(imgVerts, imgVerts + sizeof(imgVerts) / sizeof(Vertex));
 	std::vector <GLuint> iInds(imgInds, imgInds + sizeof(imgInds) / sizeof(GLuint));
 	// Create image mesh
+	imgMesh->Delete();
 	imgMesh = new Mesh (iVerts, iInds, yuvImgTextures);
 
 	imgMesh->Draw(*shaderProgramImg, *camera, imgModel);		// Draw the image
+//	pointMesh->Draw(*shaderProgramPoint, *camera, pointModel);
 }
 
 // Reads data from src to dst mirrored
@@ -127,7 +131,7 @@ void copyoverdata(uint8_t* dst, const uint8_t* src, size_t width, size_t height,
 	}
 }
 
-
+// Gets frame information and stores YUV data
 void GLVideoRendererYUV420::updateFrame(const video_frame& frame, int camera_facing)
 {
 	m_sizeY = frame.width * frame.height;
@@ -245,6 +249,8 @@ void GLVideoRendererYUV420::draw(uint8_t *buffer, size_t length, size_t width, s
 void GLVideoRendererYUV420::setAssetManager(AAssetManager *mgr)
 {
 	assetManager = mgr;
+
+	faceDetect = FaceDetect(assetManager);
 }
 
 AAssetManager * GLVideoRendererYUV420::getAssetManager() {
@@ -263,22 +269,24 @@ uint32_t GLVideoRendererYUV420::getParameters()
 
 bool GLVideoRendererYUV420::createTextures()
 {
-    GLsizei widthY = (GLsizei)m_width;
-    GLsizei heightY = (GLsizei)m_height;
+	if(isDirty){
+		GLsizei widthY = (GLsizei)m_width;
+		GLsizei heightY = (GLsizei)m_height;
 
-	GLsizei widthUV = (GLsizei)m_width / 2;
-	GLsizei heightUV = (GLsizei)m_height / 2;
+		GLsizei widthUV = (GLsizei)m_width / 2;
+		GLsizei heightUV = (GLsizei)m_height / 2;
 
-	if(yuvImgTextures.size() > 0){			// Garbage collection
-		for(auto txt : yuvImgTextures){
-			txt.Delete();
+		if(yuvImgTextures.size() > 0){			// Garbage collection
+			for(auto txt : yuvImgTextures){
+				txt.Delete();
+			}
 		}
-	}
-	yuvImgTextures.clear();
+		yuvImgTextures.clear();
 
-    yuvImgTextures.push_back(Texture(m_pDataY.get(),"s_textureY",0,widthY,heightY,1));		// Y texture
-	yuvImgTextures.push_back(Texture(m_pDataU,"s_textureU",1,widthUV,heightUV,1));	// U texture
-	yuvImgTextures.push_back(Texture(m_pDataV,"s_textureV",2,widthUV,heightUV,1));	// V texture
+		yuvImgTextures.push_back(Texture(m_pDataY.get(),"s_textureY",0,widthY,heightY,1));		// Y texture
+		yuvImgTextures.push_back(Texture(m_pDataU,"s_textureU",1,widthUV,heightUV,1));	// U texture
+		yuvImgTextures.push_back(Texture(m_pDataV,"s_textureV",2,widthUV,heightUV,1));	// V texture
+	}
 
 	return true;
 }
@@ -289,12 +297,7 @@ bool GLVideoRendererYUV420::updateTextures()
 
 	if (isDirty)
     {
-//		yuvImgTextures[0].updateTexture(m_pDataY.get());
-//		yuvImgTextures[1].updateTexture(m_pDataU);
-//		yuvImgTextures[2].updateTexture(m_pDataV);
-
         isDirty = false;
-
         return true;
 	}
 
@@ -313,48 +316,12 @@ void GLVideoRendererYUV420::deleteTextures()
 
 int GLVideoRendererYUV420::createProgram(const char *pVertexSource, const char *pFragmentSource)
 {
-	char* pointvert = (char*)NULL;
-	char* pointfrag = (char*)NULL;
-	char* imagevert = (char*)NULL;
-	char* imagefrag = (char*)NULL;
-
-	AAssetDir* assetDir = AAssetManager_openDir(assetManager, "shaders");
-	const char* filename = (const char*)NULL;
-	while ((filename = AAssetDir_getNextFileName(assetDir)) != NULL) {
-		if(strcmp(filename, "point.vert") == 0){
-			AAsset* asset = AAssetManager_open(assetManager, "shaders/point.vert", AASSET_MODE_UNKNOWN);
-			long size = AAsset_getLength(asset);
-			pointvert = (char*) malloc (sizeof(char)*size);
-			AAsset_read(asset,pointvert,size);
-			AAsset_close(asset);
-		}
-		if(strcmp(filename, "point.frag") == 0){
-			AAsset* asset = AAssetManager_open(assetManager, "shaders/point.frag", AASSET_MODE_UNKNOWN);
-			long size = AAsset_getLength(asset);
-			pointfrag = (char*) malloc (sizeof(char)*size);
-			AAsset_read(asset,pointfrag,size);
-			AAsset_close(asset);
-		}
-		if(strcmp(filename, "image.vert") == 0){
-			AAsset* asset = AAssetManager_open(assetManager, "shaders/image.vert", AASSET_MODE_UNKNOWN);
-			long size = AAsset_getLength(asset);
-			imagevert = (char*) malloc (sizeof(char)*size);
-			AAsset_read(asset,imagevert,size);
-			AAsset_close(asset);
-		}
-		if(strcmp(filename, "image.frag") == 0){
-			AAsset* asset = AAssetManager_open(assetManager, "shaders/image.frag", AASSET_MODE_UNKNOWN);
-			long size = AAsset_getLength(asset);
-			imagefrag = (char*) malloc (sizeof(char)*size);
-			AAsset_read(asset,imagefrag,size);
-			AAsset_close(asset);
-		}
+	if(!shaderProgramsCreated){
+		shaderProgramPoint = new Shader(pointVertexShader, pointFragShader);
+		shaderProgramImg = new Shader(imageVertexShader, imageFragmentShader);
+		shaderProgramsCreated = true;
 	}
-	AAssetDir_close(assetDir);
 
-	//TODO::Move this somewhere else
-//	shaderProgramPoint = new Shader(pointvert, pointfrag);
-	shaderProgramImg = new Shader(imagevert, imagefrag);
 	if (!shaderProgramImg->ID)
     {
         check_gl_error("Create program");
@@ -391,19 +358,19 @@ GLuint GLVideoRendererYUV420::useProgram()
 		}
 		AAssetDir_close(assetDirImg);
 
-		pointTextures.push_back(Texture(redpng,file_size,"diffuse",0));
-
-		// Store mesh data in vectors for the mesh
-		std::vector <Vertex> pVerts(pointVerts, pointVerts + sizeof(pointVerts) / sizeof(Vertex));
-		std::vector <GLuint> pInds(pointInds, pointInds + sizeof(pointInds) / sizeof(GLuint));
-
-		pointMesh = new Mesh(pVerts,pInds,pointTextures);
-
-		// Activate shader for Face Mask and configure the model matrix
-		pointModel = glm::mat4(1.0f);
-		pointModel = glm::scale(pointModel, glm::vec3(1.0/20.0, 1.0/20.0, 1.0/20.0));
-		glm::mat4 translation = glm::translate(glm::mat4(1.0), glm::vec3(0.0, 0.0, 0.1));
-		pointModel = translation * pointModel;
+//		pointTextures.push_back(Texture(redpng,file_size,"diffuse",0));
+//
+//		// Store mesh data in vectors for the mesh
+//		std::vector <Vertex> pVerts(pointVerts, pointVerts + sizeof(pointVerts) / sizeof(Vertex));
+//		std::vector <GLuint> pInds(pointInds, pointInds + sizeof(pointInds) / sizeof(GLuint));
+//
+//		pointMesh = new Mesh(pVerts,pInds,pointTextures);
+//
+//		// Activate shader for Face Mask and configure the model matrix
+//		pointModel = glm::mat4(1.0f);
+//		pointModel = glm::scale(pointModel, glm::vec3(1.0/20.0, 1.0/20.0, 1.0/20.0));
+//		glm::mat4 translation = glm::translate(glm::mat4(1.0), glm::vec3(0.0, 0.0, -0.1));
+//		pointModel = translation * pointModel;
 
 		// Activate shader for Image and configure the model matrix
 		imgModel = glm::mat4(1.0f);

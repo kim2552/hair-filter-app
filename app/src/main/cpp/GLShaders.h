@@ -4,42 +4,96 @@
 // Point Vertex shader
 static const char pointVertexShader[] =
     "#version 300 es\n\
-    layout (location = 0) in vec3 aPos; \
-    layout (location = 1) in vec3 aNormal; \
-    layout (location = 2) in vec3 aColor; \
-    layout (location = 3) in vec2 aTex; \
-    out vec3 crntPos; \
-    out vec3 Normal; \
-    out vec3 color; \
-    out vec2 texCoord; \
-    uniform mat4 camMatrix; \
-    uniform mat4 model; \
-    uniform mat4 translation; \
-    uniform mat4 rotation; \
-    uniform mat4 scale; \
-    void main() { \
-        crntPos = vec3(model * translation * -rotation * scale * vec4(aPos, 1.0f)); \
-        Normal = aNormal; \
-        color = aColor; \
-        texCoord = aTex; \
-        gl_Position = camMatrix * vec4(crntPos, 1.0); \
+    layout (location = 0) in vec3 aPos;\
+    layout (location = 1) in vec3 aNormal;\
+    layout (location = 2) in vec3 aColor;\
+    layout (location = 3) in vec2 aTex;\
+    out vec3 crntPos;\
+    out vec3 Normal;\
+    out vec3 color;\
+    out vec2 texCoord;\
+    uniform mat4 camMatrix;\
+    uniform mat4 model;\
+    uniform mat4 translation;\
+    uniform mat4 rotation;\
+    uniform mat4 scale;\
+    void main() {\
+        crntPos = vec3(model * translation * -rotation * scale * vec4(aPos, 1.0f));\
+        Normal = aNormal;\
+        color = aColor;\
+        texCoord = aTex;\
+        gl_Position = camMatrix * vec4(crntPos, 1.0);\
     }";
 
 // Point Fragment shader
 static const char pointFragShader[] =
     "#version 300 es\n\
-    out vec4 FragColor; \
-    in vec3 crntPos; \
-    in vec3 Normal; \
-    in vec3 color; \
-    in vec2 texCoord; \
-    uniform sampler2D diffuse0; \
-    uniform sampler2D specular0; \
-    uniform vec4 lightColor; \
-    uniform vec3 lightPos; \
-    uniform vec3 camPos; \
-    void main() { \
-        FragColor = texture(diffuse0, texCoord) * vec4(color, 1.0); \
+    out vec4 FragColor;\
+    in vec3 crntPos;\
+    in vec3 Normal;\
+    in vec3 color;\
+    in vec2 texCoord;\
+    uniform sampler2D diffuse0;\
+    uniform sampler2D specular0;\
+    uniform vec4 lightColor;\
+    uniform vec3 lightPos;\
+    uniform vec3 camPos;\
+    void main()\
+    {\
+        FragColor = texture(diffuse0, texCoord) * vec4(color, 1.0);\
+    }";
+
+// Vertex shader.
+static const char imageVertexShader[] =
+        "#version 300 es\n\
+    layout (location = 0) in vec3 aPos;\
+    layout (location = 1) in vec3 aNormal;\
+    layout (location = 2) in vec3 aColor;\
+    layout (location = 3) in vec2 aTex;\
+    out vec3 crntPos;\
+    out vec3 Normal;\
+    out vec3 color;\
+    out vec2 texCoord;\
+    uniform mat4 camMatrix;\
+    uniform mat4 model;\
+    uniform mat4 translation;\
+    uniform mat4 rotation;\
+    uniform mat4 scale;\
+    void main(){\
+        crntPos=vec3(model*translation*-rotation*scale*vec4(aPos,1.0f));\
+        Normal=aNormal;\
+        color=aColor;\
+        texCoord=aTex;\
+        gl_Position=camMatrix*vec4(crntPos,1.0);\
+    }";
+
+// Pixel shader, YUV420 to RGB conversion.
+static const char imageFragmentShader[] =
+        "#version 300 es\n\
+    out vec4 FragColor;\
+    in vec3 crntPos;\
+    in vec3 Normal;\
+    in vec3 color;\
+    in vec2 texCoord;\
+    uniform sampler2D s_textureY;\
+    uniform sampler2D s_textureU;\
+    uniform sampler2D s_textureV;\
+    uniform sampler2D diffuse0;\
+    uniform sampler2D specular0;\
+    uniform vec4 lightColor;\
+    uniform vec3 lightPos;\
+    uniform vec3 camPos;\
+    void main()\
+    {\
+        float y=texture(s_textureY,texCoord).r;\
+        float u=texture(s_textureU,texCoord).r;\
+        float v=texture(s_textureV,texCoord).r;\
+        u=u-0.5;\
+        v=v-0.5;\
+        float r=y+1.403*v;\
+        float g=y-0.344*u-0.714*v;\
+        float b=y+1.770*u;\
+        FragColor=vec4(r,g,b,1.0);\
     }";
 
 // Vertex shader.
@@ -58,23 +112,31 @@ static const char kVertexShader[] =
 
 // Pixel shader, YUV420 to RGB conversion.
 static const char kFragmentShader[] =
-    "#version 100\n \
-    precision highp float; \
-    varying vec2 v_texcoord;\
-    uniform lowp sampler2D s_textureY;\
-    uniform lowp sampler2D s_textureU;\
-    uniform lowp sampler2D s_textureV;\
-    void main() {\
-        float y, u, v, r, g, b;\
-        y = texture2D(s_textureY, v_texcoord).r;\
-        u = texture2D(s_textureU, v_texcoord).r;\
-        v = texture2D(s_textureV, v_texcoord).r;\
-        u = u - 0.5;\
-        v = v - 0.5;\
-        r = y + 1.403 * v;\
-        g = y - 0.344 * u - 0.714 * v;\
-        b = y + 1.770 * u;\
-        gl_FragColor = vec4(r, g, b, 1.0);\
+    "#version 300 es\n\
+    out vec4 FragColor;\
+    in vec3 crntPos;\
+    in vec3 Normal;\
+    in vec3 color;\
+    in vec2 texCoord;\
+    uniform sampler2D s_textureY;\
+    uniform sampler2D s_textureU;\
+    uniform sampler2D s_textureV;\
+    uniform sampler2D diffuse0;\
+    uniform sampler2D specular0;\
+    uniform vec4 lightColor;\
+    uniform vec3 lightPos;\
+    uniform vec3 camPos;\
+    void main()\
+    {\
+        float y=texture(s_textureY,texCoord).r;\
+        float u=texture(s_textureU,texCoord).r;\
+        float v=texture(s_textureV,texCoord).r;\
+        u=u-0.5;\
+        v=v-0.5;\
+        float r=y+1.403*v;\
+        float g=y-0.344*u-0.714*v;\
+        float b=y+1.770*u;\
+        FragColor=vec4(r,g,b,1.0);\
     }";
 
 // Blur Filter

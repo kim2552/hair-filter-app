@@ -83,3 +83,8 @@ void Mesh::Draw
     // Draw the actual mesh
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 }
+
+void Mesh::Delete()
+{
+    VAO.Delete();
+}
