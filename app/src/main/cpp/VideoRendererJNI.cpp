@@ -22,6 +22,7 @@ JCMCPRV(void, init)(JNIEnv * env, jobject obj, jobject surface, jint width, jint
 	ANativeWindow *window = surface ? ANativeWindow_fromSurface(env, surface) : nullptr;
 
     if (context){
+    	context->setInternalFilePaths(internal_file_paths);
         context->setAssetManager(asset_manager);
         context->init(window, (size_t)width, (size_t)height);
     }
@@ -50,6 +51,19 @@ JCMCPRV(void, draw)(JNIEnv * env, jobject obj, jbyteArray data, jint width, jint
 JCMCPRV(void, setAssetManager)(JNIEnv * env, jobject obj, jobject mgr)
 {
     asset_manager = AAssetManager_fromJava(env, mgr);
+}
+
+JCMCPRV(void, setInternalFiles)(JNIEnv * env, jobject obj, jobjectArray filepaths)
+{
+	int stringCount = env->GetArrayLength(filepaths);
+
+	for (int i=0; i<stringCount; i++) {
+		jstring string = (jstring) (env->GetObjectArrayElement(filepaths, i));
+		const char* file_path = env->GetStringUTFChars(string, 0);
+		internal_file_paths.push_back(std::string(file_path));
+		// Don't forget to call `ReleaseStringUTFChars` when you're done.
+//		env->ReleaseStringUTFChars(string, cascade_file_path);
+	}
 }
 
 JCMCPRV(void, setParameters)(JNIEnv * env, jobject obj, jint params)

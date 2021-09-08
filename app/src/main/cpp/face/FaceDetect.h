@@ -11,7 +11,8 @@
 #include "opencv2/highgui.hpp"
 #include "opencv2/imgproc.hpp"
 #include "opencv2/videoio.hpp"
-//#include <opencv2/face/facemark.hpp>
+#include "opencv2/face.hpp"
+#include "opencv2/face/facemark.hpp"
 
 #include <GLES3/gl3.h>
 
@@ -20,12 +21,14 @@
 class FaceDetect
 {
 public:
-    FaceDetect(AAssetManager *mgr);
+    FaceDetect();
+
+    void init(std::vector<std::string> file_paths);
 
     std::vector<std::vector<cv::Point2f>> getFaceLandmarks(unsigned char* image, int width, int height);
 
-//    cv::CascadeClassifier face_cascade;
-//    cv::Ptr<cv::face::Facemark> facemark;
+    cv::CascadeClassifier face_cascade;
+    cv::Ptr<cv::face::Facemark> facemark;
 
     // Vertices coordinates for face
     std::vector<GLuint> indices

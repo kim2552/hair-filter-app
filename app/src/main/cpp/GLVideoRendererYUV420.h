@@ -22,6 +22,7 @@ public:
 	virtual void setAssetManager(AAssetManager* mgr) override;
 	virtual AAssetManager* getAssetManager() override;
 	virtual void setParameters(uint32_t params) override;
+	virtual void setInternalFilePaths(std::vector<std::string> file_paths) override;
     virtual uint32_t getParameters() override;
 	virtual bool createTextures() override;
 	virtual bool updateTextures() override;

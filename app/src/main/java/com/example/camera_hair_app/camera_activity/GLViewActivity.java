@@ -1,8 +1,8 @@
 package com.example.camera_hair_app.camera_activity;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.pm.PackageManager;
-import android.content.res.AssetManager;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.util.Log;
@@ -26,7 +26,7 @@ public class GLViewActivity extends BaseViewActivity implements ActivityCompat.O
     private GLVideoRenderer mVideoRenderer;
     private int mFilter = 0;
 
-    private AssetManager assetManager;
+    private Context appContext;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,11 +34,11 @@ public class GLViewActivity extends BaseViewActivity implements ActivityCompat.O
         Log.i(TAG,"onCreate");
         setContentView(R.layout.activity_glview);
 
-        assetManager = this.getApplicationContext().getResources().getAssets();
+        appContext = this.getApplicationContext();
 
         GLSurfaceView glSurfaceView = findViewById(R.id.gl_surface_view);
         mVideoRenderer = new GLVideoRenderer();
-        mVideoRenderer.init(glSurfaceView, assetManager);
+        mVideoRenderer.init(glSurfaceView, appContext);
 
         AspectFrameLayout layout = (AspectFrameLayout) findViewById(R.id.preview);
         layout.setAspectRatio((double) 3/4);

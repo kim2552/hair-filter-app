@@ -23,6 +23,7 @@ public:
 	void draw(uint8_t *buffer, size_t length, size_t width, size_t height, int rotation, int camera_facing);
 	void setAssetManager(AAssetManager* mgr);
 	AAssetManager* getAssetManager();
+	void setInternalFilePaths(std::vector<std::string> file_paths);
 	void setParameters(uint32_t params);
 	uint32_t getParameters();
 
@@ -37,6 +38,7 @@ private:
 	static jni_fields_t jni_fields;
 
 	AAssetManager* m_assetManager;
+	std::vector<std::string> m_internalFilePaths;
 };
 
 #endif // _H_VIDEO_RENDERER_CONTEXT_

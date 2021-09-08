@@ -75,7 +75,6 @@ GLVideoRendererYUV420::GLVideoRendererYUV420()
     , m_uniformRotation(0)
     , m_uniformScale(0)
     , m_cameraFacing(0)
-    , faceDetect(NULL)
 {
 	isProgramChanged = true;
 	shaderProgramsCreated = false;
@@ -109,7 +108,7 @@ void GLVideoRendererYUV420::render()
 	std::vector <Vertex> iVerts(imgVerts, imgVerts + sizeof(imgVerts) / sizeof(Vertex));
 	std::vector <GLuint> iInds(imgInds, imgInds + sizeof(imgInds) / sizeof(GLuint));
 	// Create image mesh
-	imgMesh->Delete();
+//	imgMesh->Delete();
 	imgMesh = new Mesh (iVerts, iInds, yuvImgTextures);
 
 	imgMesh->Draw(*shaderProgramImg, *camera, imgModel);		// Draw the image
@@ -244,17 +243,25 @@ void GLVideoRendererYUV420::draw(uint8_t *buffer, size_t length, size_t width, s
 	frame.v = buffer + width * height * 5 / 4;
 
 	updateFrame(frame, camera_facing);
+
+	std::vector<std::vector<cv::Point2f>> faces;						// Array for all faces
+	faces = faceDetect.getFaceLandmarks(m_pDataY.get(), frame.width, frame.height);
 }
 
 void GLVideoRendererYUV420::setAssetManager(AAssetManager *mgr)
 {
 	assetManager = mgr;
-
-	faceDetect = FaceDetect(assetManager);
 }
 
 AAssetManager * GLVideoRendererYUV420::getAssetManager() {
 	return assetManager;
+}
+
+void GLVideoRendererYUV420::setInternalFilePaths(std::vector<std::string> file_paths)
+{
+    internalFilePaths = file_paths;
+
+    faceDetect.init(internalFilePaths);
 }
 
 void GLVideoRendererYUV420::setParameters(uint32_t params)

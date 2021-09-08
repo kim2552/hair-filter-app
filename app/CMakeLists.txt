@@ -11,8 +11,34 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 set(SRC_DIR src/main/cpp)
 
 include_directories(${OpenCV_DIR}/jni/include)
-add_library( lib_opencv SHARED IMPORTED )
-set_target_properties(lib_opencv PROPERTIES IMPORTED_LOCATION ${OpenCV_DIR}/libs/${ANDROID_ABI}/libopencv_java3.so)
+add_library( loc_core SHARED IMPORTED )
+set_target_properties(loc_core PROPERTIES IMPORTED_LOCATION ${OpenCV_DIR}/libs/${ANDROID_ABI}/libopencv_core.so)
+add_library( loc_face SHARED IMPORTED )
+set_target_properties(loc_face PROPERTIES IMPORTED_LOCATION ${OpenCV_DIR}/libs/${ANDROID_ABI}/libopencv_face.so)
+add_library( loc_highgui SHARED IMPORTED )
+set_target_properties(loc_highgui PROPERTIES IMPORTED_LOCATION ${OpenCV_DIR}/libs/${ANDROID_ABI}/libopencv_highgui.so)
+add_library( loc_objdetect SHARED IMPORTED )
+set_target_properties(loc_objdetect PROPERTIES IMPORTED_LOCATION ${OpenCV_DIR}/libs/${ANDROID_ABI}/libopencv_objdetect.so)
+add_library( loc_imgproc SHARED IMPORTED )
+set_target_properties(loc_imgproc PROPERTIES IMPORTED_LOCATION ${OpenCV_DIR}/libs/${ANDROID_ABI}/libopencv_imgproc.so)
+add_library( loc_videoio SHARED IMPORTED )
+set_target_properties(loc_videoio PROPERTIES IMPORTED_LOCATION ${OpenCV_DIR}/libs/${ANDROID_ABI}/libopencv_videoio.so)
+add_library( loc_video SHARED IMPORTED )
+set_target_properties(loc_video PROPERTIES IMPORTED_LOCATION ${OpenCV_DIR}/libs/${ANDROID_ABI}/libopencv_video.so)
+add_library( loc_calib3d SHARED IMPORTED )
+set_target_properties(loc_calib3d PROPERTIES IMPORTED_LOCATION ${OpenCV_DIR}/libs/${ANDROID_ABI}/libopencv_calib3d.so)
+add_library( loc_imgcodecs SHARED IMPORTED )
+set_target_properties(loc_imgcodecs PROPERTIES IMPORTED_LOCATION ${OpenCV_DIR}/libs/${ANDROID_ABI}/libopencv_imgcodecs.so)
+add_library( loc_dnn SHARED IMPORTED )
+set_target_properties(loc_dnn PROPERTIES IMPORTED_LOCATION ${OpenCV_DIR}/libs/${ANDROID_ABI}/libopencv_dnn.so)
+add_library( loc_features2d SHARED IMPORTED )
+set_target_properties(loc_features2d PROPERTIES IMPORTED_LOCATION ${OpenCV_DIR}/libs/${ANDROID_ABI}/libopencv_features2d.so)
+add_library( loc_flann SHARED IMPORTED )
+set_target_properties(loc_flann PROPERTIES IMPORTED_LOCATION ${OpenCV_DIR}/libs/${ANDROID_ABI}/libopencv_flann.so)
+add_library( loc_fuzzy SHARED IMPORTED )
+set_target_properties(loc_fuzzy PROPERTIES IMPORTED_LOCATION ${OpenCV_DIR}/libs/${ANDROID_ABI}/libopencv_fuzzy.so)
+add_library( loc_gapi SHARED IMPORTED )
+set_target_properties(loc_gapi PROPERTIES IMPORTED_LOCATION ${OpenCV_DIR}/libs/${ANDROID_ABI}/libopencv_gapi.so)
 
 add_library(3rdparty INTERFACE)
 target_include_directories(3rdparty INTERFACE ${SRC_DIR}/3rdparty)
@@ -102,7 +128,20 @@ find_library( # Sets the name of the path variable.
 
 target_link_libraries( # Specifies the target library.
         media-lib
-        lib_opencv
+        loc_core
+        loc_face
+        loc_highgui
+        loc_objdetect
+        loc_imgproc
+        loc_videoio
+        loc_video
+        loc_calib3d
+        loc_imgcodecs
+        loc_dnn
+        loc_features2d
+        loc_flann
+        loc_fuzzy
+        loc_gapi
         android
         ${log-lib}
         ${GLESv3-lib}

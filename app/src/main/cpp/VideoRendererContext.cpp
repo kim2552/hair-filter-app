@@ -5,6 +5,7 @@ VideoRendererContext::jni_fields_t VideoRendererContext::jni_fields = { 0L };
 
 VideoRendererContext::VideoRendererContext(int type)
 {
+    m_internalFilePaths = {};
     m_pVideoRenderer = VideoRenderer::create(type);
 }
 
@@ -37,6 +38,12 @@ void VideoRendererContext::setAssetManager(AAssetManager* mgr)
 AAssetManager* VideoRendererContext::getAssetManager()
 {
     return m_assetManager;
+}
+
+void VideoRendererContext::setInternalFilePaths(std::vector<std::string> file_paths)
+{
+    m_internalFilePaths = file_paths;
+    m_pVideoRenderer->setInternalFilePaths(m_internalFilePaths);
 }
 
 void VideoRendererContext::setParameters(uint32_t params)
