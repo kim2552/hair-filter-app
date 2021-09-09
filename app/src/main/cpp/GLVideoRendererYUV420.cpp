@@ -112,7 +112,10 @@ void GLVideoRendererYUV420::render()
 	imgMesh = new Mesh (iVerts, iInds, yuvImgTextures);
 
 	imgMesh->Draw(*shaderProgramImg, *camera, imgModel);		// Draw the image
-//	pointMesh->Draw(*shaderProgramPoint, *camera, pointModel);
+	for (size_t i = 0; i < faceDetectMeshes.size(); i++)
+	{
+		faceDetectMeshes[i].Draw(*shaderProgramPoint, *camera, faceDetectModels[i]);
+	}
 }
 
 // Reads data from src to dst mirrored
@@ -246,6 +249,43 @@ void GLVideoRendererYUV420::draw(uint8_t *buffer, size_t length, size_t width, s
 
 	std::vector<std::vector<cv::Point2f>> faces;						// Array for all faces
 	faces = faceDetect.getFaceLandmarks(m_pDataY.get(), frame.width, frame.height);
+
+	float sideLength = glm::tan(glm::radians(22.5f)) * 1.0f;			// calculate scaling face detect
+	float faceMaskScaledLength = 2.0f - (2.0f * sideLength);
+
+	// Create a mesh object from the face detect
+	for(auto fmesh : faceDetectMeshes){
+		fmesh.Delete();
+	}
+	faceDetectMeshes.clear();
+	for (size_t i = 0; i < faces.size(); i++)							// Loop through all the faces
+	{
+		Vertex faceVertex[70];											// Extra two points are for the neck
+		for (size_t j = 0; j < faces[i].size(); j++)					// Loop through landmarks in face
+		{
+			faceVertex[j]= Vertex{ glm::vec3((float)faces[i][j].x * IMAGE_ASPECT_RATIO /(float)RESIZED_IMAGE_WIDTH, (float)faces[i][j].y/(float)RESIZED_IMAGE_HEIGHT,  0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 0.0f) };
+		}
+
+		faceVertex[68] = Vertex{ glm::vec3((float)faces[i][5].x * IMAGE_ASPECT_RATIO / (float)RESIZED_IMAGE_WIDTH, (float)(faces[i][5].y+500) / (float)RESIZED_IMAGE_HEIGHT,  0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 0.0f) };
+
+		faceVertex[69] = Vertex{ glm::vec3((float)faces[i][11].x * IMAGE_ASPECT_RATIO / (float)RESIZED_IMAGE_WIDTH, (float)(faces[i][11].y + 500) / (float)RESIZED_IMAGE_HEIGHT,  0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 0.0f) };
+
+		// Store mesh data in vectors for the mesh
+		std::vector <Vertex> fVerts(faceVertex, faceVertex + sizeof(faceVertex) / sizeof(Vertex));
+		// Create and store face mesh
+		faceDetectMeshes.push_back(Mesh(fVerts, faceDetect.indices, pointTextures));
+
+		// Activate shader for Face Mask and configure the model matrix
+		faceDetectModels.clear();
+		glm::mat4 facemaskModel = glm::mat4(1.0f);
+//		facemaskModel = glm::scale(facemaskModel, glm::vec3(1.0/20.0, 1.0/20.0, 1.0/20.0));
+		facemaskModel = glm::translate(facemaskModel, glm::vec3(0.0, 0.0, -0.1f));
+//		facemaskModel = glm::scale(facemaskModel, glm::vec3(faceMaskScaledLength, faceMaskScaledLength, faceMaskScaledLength));
+//		facemaskModel = glm::translate(facemaskModel, glm::vec3(0.375f, -0.5f, -0.875f));
+//		facemaskModel = glm::rotate(facemaskModel, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+//		facemaskModel = glm::rotate(facemaskModel, glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+		faceDetectModels.push_back(facemaskModel);
+	}
 }
 
 void GLVideoRendererYUV420::setAssetManager(AAssetManager *mgr)
@@ -364,8 +404,8 @@ GLuint GLVideoRendererYUV420::useProgram()
 
 		}
 		AAssetDir_close(assetDirImg);
-
-//		pointTextures.push_back(Texture(redpng,file_size,"diffuse",0));
+		pointTextures.clear();
+		pointTextures.push_back(Texture(redpng,file_size,"diffuse",0));
 //
 //		// Store mesh data in vectors for the mesh
 //		std::vector <Vertex> pVerts(pointVerts, pointVerts + sizeof(pointVerts) / sizeof(Vertex));

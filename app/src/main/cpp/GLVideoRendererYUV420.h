@@ -81,6 +81,9 @@ private:
 	glm::mat4 imgModel;
 
 	FaceDetect faceDetect;
+
+	std::vector<Mesh> faceDetectMeshes;									// Each face has it's own mesh
+	std::vector<glm::mat4> faceDetectModels;							// Each face has it's own model
 };
 
 #endif //_GL_VIDEO_RENDERER_YUV_H_

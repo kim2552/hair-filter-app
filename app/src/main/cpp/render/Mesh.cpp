@@ -9,21 +9,6 @@ Mesh::Mesh(std::vector <Vertex>& vertices, std::vector <GLuint>& indices, std::v
     Mesh::vertices = vertices;
     Mesh::indices = indices;
     Mesh::textures = textures;
-
-    VAO.Bind();
-    // Generates Vertex Buffer Object and links it to vertices
-    VBO VBO(vertices);
-    // Generates Element Buffer Object and links it to indices
-    EBO EBO(indices);
-    // Links VBO attributes such as coordinates and colors to VAO
-    VAO.LinkAttrib(VBO, 0, 3, GL_FLOAT, sizeof(Vertex), (void*)0);
-    VAO.LinkAttrib(VBO, 1, 3, GL_FLOAT, sizeof(Vertex), (void*)(3 * sizeof(float)));
-    VAO.LinkAttrib(VBO, 2, 3, GL_FLOAT, sizeof(Vertex), (void*)(6 * sizeof(float)));
-    VAO.LinkAttrib(VBO, 3, 2, GL_FLOAT, sizeof(Vertex), (void*)(9 * sizeof(float)));
-    // Unbind all to prevent accidentally modifying them
-    VAO.Unbind();
-    VBO.Unbind();
-    EBO.Unbind();
 }
 
 
@@ -32,6 +17,7 @@ void Mesh::Draw
                 Shader& shader,
                 Camera& camera,
                 glm::mat4 matrix,
+                GLenum mode,
                 glm::vec3 translation,
                 glm::quat rotation,
                 glm::vec3 scale
@@ -39,7 +25,16 @@ void Mesh::Draw
 {
     // Bind shader to be able to access uniforms
     shader.Activate();
-    VAO.Bind();
+    m_VAO.Bind();
+    // Generates Vertex Buffer Object and links it to vertices
+    VBO VBO(vertices);
+    // Generates Element Buffer Object and links it to indices
+    EBO EBO(indices);
+    // Links VBO attributes such as coordinates and colors to VAO
+    m_VAO.LinkAttrib(VBO, 0, 3, GL_FLOAT, sizeof(Vertex), (void*)0);
+    m_VAO.LinkAttrib(VBO, 1, 3, GL_FLOAT, sizeof(Vertex), (void*)(3 * sizeof(float)));
+    m_VAO.LinkAttrib(VBO, 2, 3, GL_FLOAT, sizeof(Vertex), (void*)(6 * sizeof(float)));
+    m_VAO.LinkAttrib(VBO, 3, 2, GL_FLOAT, sizeof(Vertex), (void*)(9 * sizeof(float)));
 
     // Keep track of how many of each type of textures we have
     unsigned int numDiffuse = 0;
@@ -81,10 +76,14 @@ void Mesh::Draw
     glUniformMatrix4fv(glGetUniformLocation(shader.ID, "model"), 1, GL_FALSE, glm::value_ptr(matrix));
 
     // Draw the actual mesh
-    glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+    glDrawElements(mode, indices.size(), GL_UNSIGNED_INT, 0);
+
+    m_VAO.Unbind();
+    VBO.Unbind();
+    EBO.Unbind();
 }
 
 void Mesh::Delete()
 {
-    VAO.Delete();
+    m_VAO.Delete();
 }

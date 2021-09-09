@@ -40,7 +40,7 @@ static const char pointFragShader[] =
     uniform vec3 camPos;\
     void main()\
     {\
-        FragColor = texture(diffuse0, texCoord) * vec4(color, 1.0);\
+        FragColor = vec4(1.0, 0.0, 0.0, 1.0);\
     }";
 
 // Vertex shader.
