@@ -27,7 +27,7 @@ public:
 	virtual bool createTextures() override;
 	virtual bool updateTextures() override;
 	virtual void deleteTextures() override;
-	virtual int createProgram(const char *pVertexSource, const char *pFragmentSource) override;
+	virtual int createPrograms() override;
 
 protected:
 	virtual GLuint useProgram();
@@ -83,7 +83,7 @@ private:
 	FaceDetect faceDetect;
 
 	std::vector<Mesh> faceDetectMeshes;									// Each face has it's own mesh
-	std::vector<glm::mat4> faceDetectModels;							// Each face has it's own model
+	glm::mat4 faceDetectModel;
 };
 
 #endif //_GL_VIDEO_RENDERER_YUV_H_

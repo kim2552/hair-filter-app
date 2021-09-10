@@ -40,7 +40,7 @@ public:
 	virtual bool createTextures() = 0;
 	virtual bool updateTextures() = 0;
 	virtual void deleteTextures() = 0;
-	virtual int createProgram(const char *pVertexSource, const char *pFragmentSource) = 0;
+	virtual int createPrograms() = 0;
 
 protected:
 	size_t m_width;

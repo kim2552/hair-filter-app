@@ -34,3 +34,26 @@ std::vector<std::vector<cv::Point2f>> FaceDetect::getFaceLandmarks(unsigned char
     }
     return shapes;
 }
+
+glm::mat4 FaceDetect::genFaceModel(GLuint camera_facing)
+{
+    float sideLength = glm::tan(glm::radians(22.5f)) * 1.0f;			// calculate scaling face detect
+    float faceMaskScaledLength = 2.0f - (2.0f * sideLength);
+
+    glm::mat4 faceDetectModel = glm::mat4(1.0f);
+//    faceDetectModel = glm::scale(faceDetectModel, glm::vec3(1.0/20.0, 1.0/20.0, 1.0/20.0));
+    faceDetectModel = glm::rotate(faceDetectModel, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));	// Flip the image
+    faceDetectModel = glm::translate(faceDetectModel, glm::vec3(-0.5, -0.5, 0.875f));
+    faceDetectModel = glm::scale(faceDetectModel, glm::vec3(faceMaskScaledLength, faceMaskScaledLength, faceMaskScaledLength));
+//    faceDetectModel = glm::translate(faceDetectModel, glm::vec3(0.375f, -0.5f, -0.875f));
+    if(camera_facing == 0){
+//        faceDetectModel = glm::rotate(faceDetectModel, glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f));	// Flip the image
+    }
+//    if(m_cameraFacing == 0){
+//        imgModel = glm::rotate(imgModel, glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f));	// Flip the image
+//        imgModel = glm::rotate(imgModel, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));	// Flip the image
+//    }
+//    imgModel = glm::rotate(imgModel, glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));	// Flip the image
+
+    return faceDetectModel;
+}

@@ -11,7 +11,6 @@ Mesh::Mesh(std::vector <Vertex>& vertices, std::vector <GLuint>& indices, std::v
     Mesh::textures = textures;
 }
 
-
 void Mesh::Draw
         (
                 Shader& shader,
@@ -25,6 +24,8 @@ void Mesh::Draw
 {
     // Bind shader to be able to access uniforms
     shader.Activate();
+
+    // Bind VAO
     m_VAO.Bind();
     // Generates Vertex Buffer Object and links it to vertices
     VBO VBO(vertices);
@@ -78,6 +79,7 @@ void Mesh::Draw
     // Draw the actual mesh
     glDrawElements(mode, indices.size(), GL_UNSIGNED_INT, 0);
 
+    // Unbind all buffers
     m_VAO.Unbind();
     VBO.Unbind();
     EBO.Unbind();
@@ -85,5 +87,11 @@ void Mesh::Draw
 
 void Mesh::Delete()
 {
+    vertices.clear();
+    indices.clear();
+    for(auto txt : textures){
+        txt.Delete();
+    }
+    textures.clear();
     m_VAO.Delete();
 }

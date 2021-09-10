@@ -46,7 +46,7 @@ void GLVideoRendererYUV420Filter::render()
         {
             isProgramChanged = true;
             delete_program(m_program);
-            createProgram(kVertexShader, m_fragmentShader.at(m_filter));
+            createPrograms();
         }
     }
 

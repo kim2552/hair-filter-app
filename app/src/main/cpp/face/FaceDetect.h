@@ -15,6 +15,11 @@
 #include "opencv2/face/facemark.hpp"
 
 #include <GLES3/gl3.h>
+#include <glm/glm.hpp>
+#include<glm/gtc/matrix_transform.hpp>
+#include<glm/gtc/type_ptr.hpp>
+#include<glm/gtx/rotate_vector.hpp>
+#include<glm/gtx/vector_angle.hpp>
 
 #include "globals.h"
 
@@ -26,6 +31,8 @@ public:
     void init(std::vector<std::string> file_paths);
 
     std::vector<std::vector<cv::Point2f>> getFaceLandmarks(unsigned char* image, int width, int height);
+
+    glm::mat4 genFaceModel(GLuint camera_facing);
 
     cv::CascadeClassifier face_cascade;
     cv::Ptr<cv::face::Facemark> facemark;

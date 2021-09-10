@@ -3,22 +3,6 @@
 #include "CommonUtils.h"
 #include "Log.h"
 
-// Vertices for a full screen quad.
-static const float kVertices[8] = {
-  -1.333f, 1.f,
-  -1.333f, -1.f,
-  1.333f, 1.f,
-  1.333f, -1.f
-};
-
-// Texture coordinates for mapping entire texture.
-static const float kTextureCoords[8] = {
-  0, 0,
-  0, 1,
-  1, 0,
-  1, 1
-};
-
 // Vertices coordinates
 Vertex imgVerts[] =
 		{ //               COORDINATES           /            NORMALS          /           COLORS         /       TEXCOORDS         //
@@ -30,22 +14,6 @@ Vertex imgVerts[] =
 
 // Indices for vertices order
 static const GLuint imgInds[] =
-		{
-				0, 1, 2,
-				0, 2, 3
-		};
-
-// Vertices coordinates
-static const Vertex pointVerts[4] =
-		{ //               COORDINATES           /            NORMALS          /           COLORS         /       TEXCOORDS         //
-				Vertex{glm::vec3(-1.0f, 1.0f,  0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 0.0f)},
-				Vertex{glm::vec3(-1.0f, -1.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 1.0f)},
-				Vertex{glm::vec3(1.0f, -1.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 1.0f)},
-				Vertex{glm::vec3(1.0f, 1.0f,  0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 0.0f)}
-		};
-
-// Indices for vertices order
-static const GLuint pointInds[6] =
 		{
 				0, 1, 2,
 				0, 2, 3
@@ -92,14 +60,15 @@ void GLVideoRendererYUV420::init(ANativeWindow* window, size_t width, size_t hei
     m_backingWidth = width;
     m_backingHeight = height;
 
-    camera = new Camera(m_backingWidth, m_backingHeight, glm::vec3(0.0,0.0,2.415));
+    camera = new Camera(m_backingWidth, m_backingHeight, glm::vec3(0.0,0.0,2.415)); //TODO::Move this to isProgramChanged?
 	camera->updateMatrix(45.0f, 0.1f, 100.0f);
+
+	glEnable(GL_DEPTH_TEST);
 }
 
 // GLVideoRenderer render - occurs every new camera image
 void GLVideoRendererYUV420::render()
 {
-	glEnable(GL_DEPTH_TEST);
 	glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -108,13 +77,12 @@ void GLVideoRendererYUV420::render()
 	std::vector <Vertex> iVerts(imgVerts, imgVerts + sizeof(imgVerts) / sizeof(Vertex));
 	std::vector <GLuint> iInds(imgInds, imgInds + sizeof(imgInds) / sizeof(GLuint));
 	// Create image mesh
-//	imgMesh->Delete();
 	imgMesh = new Mesh (iVerts, iInds, yuvImgTextures);
 
 	imgMesh->Draw(*shaderProgramImg, *camera, imgModel);		// Draw the image
 	for (size_t i = 0; i < faceDetectMeshes.size(); i++)
 	{
-		faceDetectMeshes[i].Draw(*shaderProgramPoint, *camera, faceDetectModels[i]);
+		faceDetectMeshes[i].Draw(*shaderProgramPoint, *camera, faceDetectModel, GL_LINES);
 	}
 }
 
@@ -247,7 +215,7 @@ void GLVideoRendererYUV420::draw(uint8_t *buffer, size_t length, size_t width, s
 
 	updateFrame(frame, camera_facing);
 
-	std::vector<std::vector<cv::Point2f>> faces;						// Array for all faces
+	std::vector<std::vector<cv::Point2f>> faces;						                            // Array for all faces
 	faces = faceDetect.getFaceLandmarks(m_pDataY.get(), frame.width, frame.height);
 
 	float sideLength = glm::tan(glm::radians(22.5f)) * 1.0f;			// calculate scaling face detect
@@ -263,28 +231,17 @@ void GLVideoRendererYUV420::draw(uint8_t *buffer, size_t length, size_t width, s
 		Vertex faceVertex[70];											// Extra two points are for the neck
 		for (size_t j = 0; j < faces[i].size(); j++)					// Loop through landmarks in face
 		{
-			faceVertex[j]= Vertex{ glm::vec3((float)faces[i][j].x * IMAGE_ASPECT_RATIO /(float)RESIZED_IMAGE_WIDTH, (float)faces[i][j].y/(float)RESIZED_IMAGE_HEIGHT,  0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 0.0f) };
+			faceVertex[j]= Vertex{ glm::vec3((float)faces[i][j].x /(float)RESIZED_IMAGE_HEIGHT, (float)faces[i][j].y * (float)IMAGE_ASPECT_RATIO /(float)RESIZED_IMAGE_WIDTH,  0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 0.0f) };
 		}
 
-		faceVertex[68] = Vertex{ glm::vec3((float)faces[i][5].x * IMAGE_ASPECT_RATIO / (float)RESIZED_IMAGE_WIDTH, (float)(faces[i][5].y+500) / (float)RESIZED_IMAGE_HEIGHT,  0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 0.0f) };
+		faceVertex[68] = Vertex{ glm::vec3((float)faces[i][5].x / (float)RESIZED_IMAGE_HEIGHT, (float)(faces[i][5].y+500) * (float)IMAGE_ASPECT_RATIO /(float)RESIZED_IMAGE_WIDTH,  0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 0.0f) };
 
-		faceVertex[69] = Vertex{ glm::vec3((float)faces[i][11].x * IMAGE_ASPECT_RATIO / (float)RESIZED_IMAGE_WIDTH, (float)(faces[i][11].y + 500) / (float)RESIZED_IMAGE_HEIGHT,  0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 0.0f) };
+		faceVertex[69] = Vertex{ glm::vec3((float)faces[i][11].x / (float)RESIZED_IMAGE_HEIGHT, (float)(faces[i][11].y + 500) * (float)IMAGE_ASPECT_RATIO /(float)RESIZED_IMAGE_WIDTH,  0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 0.0f) };
 
 		// Store mesh data in vectors for the mesh
 		std::vector <Vertex> fVerts(faceVertex, faceVertex + sizeof(faceVertex) / sizeof(Vertex));
 		// Create and store face mesh
 		faceDetectMeshes.push_back(Mesh(fVerts, faceDetect.indices, pointTextures));
-
-		// Activate shader for Face Mask and configure the model matrix
-		faceDetectModels.clear();
-		glm::mat4 facemaskModel = glm::mat4(1.0f);
-//		facemaskModel = glm::scale(facemaskModel, glm::vec3(1.0/20.0, 1.0/20.0, 1.0/20.0));
-		facemaskModel = glm::translate(facemaskModel, glm::vec3(0.0, 0.0, -0.1f));
-//		facemaskModel = glm::scale(facemaskModel, glm::vec3(faceMaskScaledLength, faceMaskScaledLength, faceMaskScaledLength));
-//		facemaskModel = glm::translate(facemaskModel, glm::vec3(0.375f, -0.5f, -0.875f));
-//		facemaskModel = glm::rotate(facemaskModel, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-//		facemaskModel = glm::rotate(facemaskModel, glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-		faceDetectModels.push_back(facemaskModel);
 	}
 }
 
@@ -361,71 +318,44 @@ void GLVideoRendererYUV420::deleteTextures()
 	yuvImgTextures.clear();
 }
 
-int GLVideoRendererYUV420::createProgram(const char *pVertexSource, const char *pFragmentSource)
+int GLVideoRendererYUV420::createPrograms()
 {
 	if(!shaderProgramsCreated){
-		shaderProgramPoint = new Shader(pointVertexShader, pointFragShader);
 		shaderProgramImg = new Shader(imageVertexShader, imageFragmentShader);
+        shaderProgramPoint = new Shader(pointVertexShader, pointFragShader);
 		shaderProgramsCreated = true;
 	}
 
-	if (!shaderProgramImg->ID)
+	if (!shaderProgramImg->ID || !shaderProgramPoint->ID)
     {
-        check_gl_error("Create program");
-		LOGE("Could not create program.");
+        check_gl_error("Create programs");
+		LOGE("Could not create programs.");
         return 0;
 	}
 
-	return shaderProgramImg->ID;
+	return 1;
 }
 
 GLuint GLVideoRendererYUV420::useProgram()
 {
-	if (!createProgram(kVertexShader, kFragmentShader))
+	if (!createPrograms())
     {
-		LOGE("Could not use program.");
+		LOGE("Could not use programs.");
 		return 0;
 	}
 
 	if (isProgramChanged)
     {
-		const char* filename = (const char*)NULL;
-		unsigned char* redpng;
-		int file_size;
-		AAssetDir* assetDirImg = AAssetManager_openDir(assetManager, "colors");
-		while ((filename = AAssetDir_getNextFileName(assetDirImg)) != NULL) {
-			if(strcmp(filename, "lol.png") == 0){
-				AAsset* asset = AAssetManager_open(assetManager, "colors/lol.png", AASSET_MODE_UNKNOWN);
-				file_size = AAsset_getLength(asset);
-				redpng = (unsigned char*) malloc (sizeof(unsigned char)*file_size);
-				AAsset_read(asset,redpng,file_size);
-				AAsset_close(asset);
-			}
-
-		}
-		AAssetDir_close(assetDirImg);
-		pointTextures.clear();
-		pointTextures.push_back(Texture(redpng,file_size,"diffuse",0));
-//
-//		// Store mesh data in vectors for the mesh
-//		std::vector <Vertex> pVerts(pointVerts, pointVerts + sizeof(pointVerts) / sizeof(Vertex));
-//		std::vector <GLuint> pInds(pointInds, pointInds + sizeof(pointInds) / sizeof(GLuint));
-//
-//		pointMesh = new Mesh(pVerts,pInds,pointTextures);
-//
-//		// Activate shader for Face Mask and configure the model matrix
-//		pointModel = glm::mat4(1.0f);
-//		pointModel = glm::scale(pointModel, glm::vec3(1.0/20.0, 1.0/20.0, 1.0/20.0));
-//		glm::mat4 translation = glm::translate(glm::mat4(1.0), glm::vec3(0.0, 0.0, -0.1));
-//		pointModel = translation * pointModel;
-
-		// Activate shader for Image and configure the model matrix
+		// Configure image model matrix
 		imgModel = glm::mat4(1.0f);
-		if(m_cameraFacing == 0){
-			imgModel = glm::rotate(imgModel, glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f));	// Flip the image
-			imgModel = glm::rotate(imgModel, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));	// Flip the image
+		if(m_cameraFacing == 0){    // front-facing
+            imgModel = glm::rotate(imgModel, -1.57079633f, glm::vec3(0.0f, 0.0f, 1.0f));	// Flip the image 90
+		}else{
+            imgModel = glm::rotate(imgModel, 1.57079633f, glm::vec3(0.0f, 0.0f, 1.0f));	// Flip the image 90
 		}
-		imgModel = glm::rotate(imgModel, glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));	// Flip the image
+
+		// Configure face detection model matrix
+		faceDetectModel = faceDetect.genFaceModel(m_cameraFacing);
 
 		isProgramChanged = false;
 	}

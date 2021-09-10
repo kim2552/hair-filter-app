@@ -1,0 +1,8 @@
+//
+// Created by jooho on 2021-09-09.
+//
+
+#ifndef CAMERA_HAIR_APP_FACEMESH_H
+#define CAMERA_HAIR_APP_FACEMESH_H
+
+#endif //CAMERA_HAIR_APP_FACEMESH_H
