@@ -332,7 +332,7 @@ GLuint GLVideoRendererYUV420::useProgram()
 	if (isProgramChanged)
     {
 		// Configure the camera matrix
-		camera = new Camera(m_backingWidth, m_backingHeight, glm::vec3(0.0,0.0,5.415));
+		camera = new Camera(m_backingWidth, m_backingHeight, glm::vec3(0.0,0.0,2.415));
 		camera->updateMatrix(45.0f, 0.1f, 100.0f);
 
 		// Configure image model matrix

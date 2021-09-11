@@ -23,26 +23,17 @@ std::vector<std::vector<cv::Point2f>> FaceDetect::getFaceLandmarks(unsigned char
 
     // Size(width, height), RESIZED_IMAGE_HEIGHT > RESIZED_IMAGE_WIDTH, so use RESIZED_IMAGE_HEIGHT for width and RESIZED_IMAGE_WIDTH for height
     cv::resize(imageMat, imageMat, cv::Size(RESIZED_IMAGE_HEIGHT, RESIZED_IMAGE_WIDTH), 0, 0, cv::INTER_LINEAR_EXACT);
-    cv::Mat flippedImageMat = cv::Mat(height, width, CV_8UC1);
-    cv::flip(imageMat, flippedImageMat, 0);
-
     // We rotate image by 90, width = RESIZED_IMAGE_WIDTH, height = RESIZED_IMAGE_HEIGHT
-    cv::rotate(flippedImageMat, flippedImageMat, cv::ROTATE_90_COUNTERCLOCKWISE);
+    cv::rotate(imageMat, imageMat, cv::ROTATE_90_COUNTERCLOCKWISE);
+
     std::vector<cv::Rect> faces;
-    cv::equalizeHist(flippedImageMat, flippedImageMat);
-    face_cascade.detectMultiScale(flippedImageMat, faces, 1.1, 6, 0, cv::Size(30, 30));
+    cv::equalizeHist(imageMat, imageMat);
+    face_cascade.detectMultiScale(imageMat, faces, 1.1, 3, 0, cv::Size(50, 50));
 
     std::vector<std::vector<cv::Point2f>> shapes;
     if (faces.size() > 0) {
-        facemark->fit(flippedImageMat, faces, shapes);
+        facemark->fit(imageMat, faces, shapes);
         __android_log_print(ANDROID_LOG_INFO, "FaceSize", "width: %d, height: %d", faces[0].size().width, faces[0].size().height);
-//        std::vector<cv::Point2f> shape;
-//
-//        shape.push_back(cv::Point2f(faces[0].x,faces[0].y));
-//        shape.push_back(cv::Point2f(faces[0].x,faces[0].y+faces[0].height));
-//        shape.push_back(cv::Point2f(faces[0].x+faces[0].width,faces[0].y+faces[0].height));
-//        shape.push_back(cv::Point2f(faces[0].x+faces[0].width,faces[0].y));
-//        shapes.push_back(shape);
     }
 
     return shapes;
@@ -54,19 +45,11 @@ glm::mat4 FaceDetect::genFaceModel(GLuint camera_facing)
     float faceMaskScaledLength = 2.0f - (2.0f * sideLength);
 
     glm::mat4 faceDetectModel = glm::mat4(1.0f);
-//    faceDetectModel = glm::scale(faceDetectModel, glm::vec3(1.0/20.0, 1.0/20.0, 1.0/20.0));
     faceDetectModel = glm::scale(faceDetectModel, glm::vec3(faceMaskScaledLength, faceMaskScaledLength, faceMaskScaledLength));
-//    faceDetectModel = glm::rotate(faceDetectModel, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));	// Flip the image
-    faceDetectModel = glm::translate(faceDetectModel, glm::vec3(-0.375, -0.5, -1.25f));
-//    faceDetectModel = glm::translate(faceDetectModel, glm::vec3(0.375f, -0.5f, -0.875f));
-    if(camera_facing == 0){
-//        faceDetectModel = glm::rotate(faceDetectModel, glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f));	// Flip the image
-    }
-//    if(m_cameraFacing == 0){
-//        imgModel = glm::rotate(imgModel, glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f));	// Flip the image
-//        imgModel = glm::rotate(imgModel, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));	// Flip the image
+//    if(camera_facing == 0){
+//        faceDetectModel = glm::rotate(faceDetectModel, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));	// Flip the image
 //    }
-//    imgModel = glm::rotate(imgModel, glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));	// Flip the image
+    faceDetectModel = glm::translate(faceDetectModel, glm::vec3(-0.375, -0.5, -0.5f));
 
     return faceDetectModel;
 }
