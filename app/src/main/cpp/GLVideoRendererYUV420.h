@@ -35,13 +35,11 @@ protected:
 	GLuint m_program;
 	GLuint m_vertexShader;
 	GLuint m_pixelShader;
+
 private:
 	bool shaderProgramsCreated;
 
 	std::unique_ptr<uint8_t[]> m_pDataY;
-
-	std::unique_ptr<uint8_t[]> m_pRgbImage;
-
     uint8_t * m_pDataU;
     uint8_t * m_pDataV;
 
@@ -68,21 +66,15 @@ private:
 
 	Camera* camera;
 
-	std::vector<Texture> yuvImgTextures;
+	Shader* shaderProgramImg;		// Shader program for image drawing
+	Shader* shaderProgramPoint;		// Shader program for misc point drawing
 
-	std::vector<Texture> pointTextures;
-	Mesh* pointMesh;
-	Shader* shaderProgramPoint;
-	glm::mat4 pointModel;
-
-	std::vector<Texture> imgTextures;
 	Mesh* imgMesh;
-	Shader* shaderProgramImg;
 	glm::mat4 imgModel;
+    std::vector<Texture> yuvImgTextures;
 
 	FaceDetect faceDetect;
-
-	std::vector<Mesh> faceDetectMeshes;									// Each face has it's own mesh
+	std::vector<Mesh> faceDetectMeshes;
 	glm::mat4 faceDetectModel;
 };
 

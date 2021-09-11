@@ -38,7 +38,7 @@ public class GLVideoRenderer extends VideoRenderer implements GLSurfaceView.Rend
         mCascadeFile = new File(dir, "face_frontal.xml");
         mLandmarkFile = new File(dir, "face_landmark.xml");
 
-        createInternalFiles(context, mCascadeFile, "data/lbpcascade_frontalface_improved.xml", 0);
+        createInternalFiles(context, mCascadeFile, "data/haarcascade_frontalface_default.xml", 0);
         createInternalFiles(context, mLandmarkFile, "data/face_landmark_model.dat", 1);
         //Pass AssetManager to JNI
         setAssetManager(context.getResources().getAssets());

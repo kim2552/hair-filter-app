@@ -21,6 +21,7 @@
 #include<glm/gtx/rotate_vector.hpp>
 #include<glm/gtx/vector_angle.hpp>
 
+#include "render/Mesh.h"
 #include "globals.h"
 
 class FaceDetect
@@ -33,12 +34,14 @@ public:
     std::vector<std::vector<cv::Point2f>> getFaceLandmarks(unsigned char* image, int width, int height);
 
     glm::mat4 genFaceModel(GLuint camera_facing);
+    Mesh genFaceMesh(std::vector<cv::Point2f>& face);
 
     cv::CascadeClassifier face_cascade;
     cv::Ptr<cv::face::Facemark> facemark;
 
+    std::vector<Texture> fdTextures;    // empty list
     // Vertices coordinates for face
-    std::vector<GLuint> indices
+    std::vector<GLuint> fdIndices
             {
                     0, 17, 36,
                     0, 1, 36,

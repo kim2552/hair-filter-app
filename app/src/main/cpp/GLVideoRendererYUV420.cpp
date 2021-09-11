@@ -3,7 +3,7 @@
 #include "CommonUtils.h"
 #include "Log.h"
 
-// Vertices coordinates
+// Preview Image Vertices coordinates
 Vertex imgVerts[] =
 		{ //               COORDINATES           /            NORMALS          /           COLORS         /       TEXCOORDS         //
 				Vertex{glm::vec3(-1.0f, 0.75f,  0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 0.0f)},
@@ -12,7 +12,7 @@ Vertex imgVerts[] =
 				Vertex{glm::vec3(1.0f, 0.75f,  0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 0.0f)}
 		};
 
-// Indices for vertices order
+// Preview Image Indices for vertices order
 static const GLuint imgInds[] =
 		{
 				0, 1, 2,
@@ -59,30 +59,40 @@ void GLVideoRendererYUV420::init(ANativeWindow* window, size_t width, size_t hei
 {
     m_backingWidth = width;
     m_backingHeight = height;
-
-    camera = new Camera(m_backingWidth, m_backingHeight, glm::vec3(0.0,0.0,2.415)); //TODO::Move this to isProgramChanged?
-	camera->updateMatrix(45.0f, 0.1f, 100.0f);
-
-	glEnable(GL_DEPTH_TEST);
 }
 
 // GLVideoRenderer render - occurs every new camera image
 void GLVideoRendererYUV420::render()
 {
+	glEnable(GL_DEPTH_TEST);
 	glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+	// Update textures and create shader programs
 	if (!updateTextures() || !useProgram()) return;
 
-	std::vector <Vertex> iVerts(imgVerts, imgVerts + sizeof(imgVerts) / sizeof(Vertex));
-	std::vector <GLuint> iInds(imgInds, imgInds + sizeof(imgInds) / sizeof(GLuint));
-	// Create image mesh
-	imgMesh = new Mesh (iVerts, iInds, yuvImgTextures);
+	// Detect face(s) and get landmark points
+    std::vector<std::vector<cv::Point2f>> faces;
+    faces = faceDetect.getFaceLandmarks(m_pDataY.get(), m_width, m_height);
 
+    // Create a mesh object from the face detect
+    for(auto fdMesh : faceDetectMeshes) fdMesh.Delete();
+    faceDetectMeshes.clear();
+    for (size_t i = 0; i < faces.size(); i++)							// Loop through all the faces
+    {
+        faceDetectMeshes.push_back(faceDetect.genFaceMesh(faces[i]));
+    }
+
+	// Create image mesh for camera preview
+	std::vector <Vertex> yuvImgV(imgVerts, imgVerts + sizeof(imgVerts) / sizeof(Vertex));
+	std::vector <GLuint> yuvImgI(imgInds, imgInds + sizeof(imgInds) / sizeof(GLuint));
+	imgMesh = new Mesh (yuvImgV, yuvImgI, yuvImgTextures);
+
+    // Draw all meshes
 	imgMesh->Draw(*shaderProgramImg, *camera, imgModel);		// Draw the image
 	for (size_t i = 0; i < faceDetectMeshes.size(); i++)
 	{
-		faceDetectMeshes[i].Draw(*shaderProgramPoint, *camera, faceDetectModel, GL_LINES);
+		faceDetectMeshes[i].Draw(*shaderProgramPoint, *camera, faceDetectModel, GL_LINE_STRIP);
 	}
 }
 
@@ -109,9 +119,9 @@ void GLVideoRendererYUV420::updateFrame(const video_frame& frame, int camera_fac
 	m_sizeV = frame.width * frame.height / 4;
 
 	if (m_pDataY == nullptr || m_width != frame.width || m_height != frame.height || m_cameraFacing != camera_facing)
-    {
+	{
 		m_cameraFacing = camera_facing;
-        m_pDataY = std::make_unique<uint8_t[]>(m_sizeY + m_sizeU + m_sizeV);
+		m_pDataY = std::make_unique<uint8_t[]>(m_sizeY + m_sizeU + m_sizeV);
 		m_pDataU = m_pDataY.get() + m_sizeY;
 		m_pDataV = m_pDataU + m_sizeU;
 		isProgramChanged = true;
@@ -121,15 +131,15 @@ void GLVideoRendererYUV420::updateFrame(const video_frame& frame, int camera_fac
 	m_height = frame.height;
 
 	if (m_width == frame.stride_y)
-    {
+	{
 		if(m_cameraFacing == 0){	// front facing
 			copyoverdata(m_pDataY.get(), frame.y, m_width, m_height, m_sizeY);
 		}else{
 			memcpy(m_pDataY.get(), frame.y, m_sizeY);
 		}
 	}
-    else
-    {
+	else
+	{
 		uint8_t* pSrcY = frame.y;
 		uint8_t* pDstY;
 		if(m_cameraFacing == 0){	// front facing
@@ -140,7 +150,7 @@ void GLVideoRendererYUV420::updateFrame(const video_frame& frame, int camera_fac
 
 
 		for (int h = 0; h < m_height; h++)
-        {
+		{
 			memcpy(pDstY, pSrcY, m_width);
 
 			pSrcY += frame.stride_y;
@@ -154,7 +164,7 @@ void GLVideoRendererYUV420::updateFrame(const video_frame& frame, int camera_fac
 	}
 
 	if (m_width / 2 == frame.stride_uv)
-    {
+	{
 		if(m_cameraFacing == 0){	// front facing
 			copyoverdata(m_pDataU, frame.u, m_width/2, m_height/2, m_sizeU);
 			copyoverdata(m_pDataV, frame.v, m_width/2, m_height/2, m_sizeV);
@@ -163,8 +173,8 @@ void GLVideoRendererYUV420::updateFrame(const video_frame& frame, int camera_fac
 			memcpy(m_pDataV, frame.v, m_sizeV);
 		}
 	}
-    else
-    {
+	else
+	{
 		uint8_t* pSrcU = frame.u;
 		uint8_t* pSrcV = frame.v;
 		uint8_t *pDstU;
@@ -178,7 +188,7 @@ void GLVideoRendererYUV420::updateFrame(const video_frame& frame, int camera_fac
 		}
 
 		for (int h = 0; h < m_height / 2; h++)
-        {
+		{
 			memcpy(pDstU, pSrcU, m_width / 2);
 			memcpy(pDstV, pSrcV, m_width / 2);
 
@@ -214,35 +224,6 @@ void GLVideoRendererYUV420::draw(uint8_t *buffer, size_t length, size_t width, s
 	frame.v = buffer + width * height * 5 / 4;
 
 	updateFrame(frame, camera_facing);
-
-	std::vector<std::vector<cv::Point2f>> faces;						                            // Array for all faces
-	faces = faceDetect.getFaceLandmarks(m_pDataY.get(), frame.width, frame.height);
-
-	float sideLength = glm::tan(glm::radians(22.5f)) * 1.0f;			// calculate scaling face detect
-	float faceMaskScaledLength = 2.0f - (2.0f * sideLength);
-
-	// Create a mesh object from the face detect
-	for(auto fmesh : faceDetectMeshes){
-		fmesh.Delete();
-	}
-	faceDetectMeshes.clear();
-	for (size_t i = 0; i < faces.size(); i++)							// Loop through all the faces
-	{
-		Vertex faceVertex[70];											// Extra two points are for the neck
-		for (size_t j = 0; j < faces[i].size(); j++)					// Loop through landmarks in face
-		{
-			faceVertex[j]= Vertex{ glm::vec3((float)faces[i][j].x /(float)RESIZED_IMAGE_HEIGHT, (float)faces[i][j].y * (float)IMAGE_ASPECT_RATIO /(float)RESIZED_IMAGE_WIDTH,  0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 0.0f) };
-		}
-
-		faceVertex[68] = Vertex{ glm::vec3((float)faces[i][5].x / (float)RESIZED_IMAGE_HEIGHT, (float)(faces[i][5].y+500) * (float)IMAGE_ASPECT_RATIO /(float)RESIZED_IMAGE_WIDTH,  0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 0.0f) };
-
-		faceVertex[69] = Vertex{ glm::vec3((float)faces[i][11].x / (float)RESIZED_IMAGE_HEIGHT, (float)(faces[i][11].y + 500) * (float)IMAGE_ASPECT_RATIO /(float)RESIZED_IMAGE_WIDTH,  0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 0.0f) };
-
-		// Store mesh data in vectors for the mesh
-		std::vector <Vertex> fVerts(faceVertex, faceVertex + sizeof(faceVertex) / sizeof(Vertex));
-		// Create and store face mesh
-		faceDetectMeshes.push_back(Mesh(fVerts, faceDetect.indices, pointTextures));
-	}
 }
 
 void GLVideoRendererYUV420::setAssetManager(AAssetManager *mgr)
@@ -320,12 +301,14 @@ void GLVideoRendererYUV420::deleteTextures()
 
 int GLVideoRendererYUV420::createPrograms()
 {
+	// Shaders have already been created
 	if(!shaderProgramsCreated){
 		shaderProgramImg = new Shader(imageVertexShader, imageFragmentShader);
         shaderProgramPoint = new Shader(pointVertexShader, pointFragShader);
 		shaderProgramsCreated = true;
 	}
 
+	// Check if shader programs exist
 	if (!shaderProgramImg->ID || !shaderProgramPoint->ID)
     {
         check_gl_error("Create programs");
@@ -338,14 +321,20 @@ int GLVideoRendererYUV420::createPrograms()
 
 GLuint GLVideoRendererYUV420::useProgram()
 {
+	// Create shader programs
 	if (!createPrograms())
     {
 		LOGE("Could not use programs.");
 		return 0;
 	}
 
+	// Check if the program has changed
 	if (isProgramChanged)
     {
+		// Configure the camera matrix
+		camera = new Camera(m_backingWidth, m_backingHeight, glm::vec3(0.0,0.0,5.415));
+		camera->updateMatrix(45.0f, 0.1f, 100.0f);
+
 		// Configure image model matrix
 		imgModel = glm::mat4(1.0f);
 		if(m_cameraFacing == 0){    // front-facing

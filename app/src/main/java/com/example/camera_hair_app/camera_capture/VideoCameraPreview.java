@@ -120,7 +120,7 @@ public class VideoCameraPreview extends SurfaceView implements SurfaceHolder.Cal
      */
     public void surfaceChanged(SurfaceHolder holder, int format, int w, int h){
         if(null == mImageReader && null != mPreviewSize) {
-            mImageReader = ImageReader.newInstance(mPreviewSize.getWidth(), mPreviewSize.getHeight(), ImageFormat.YUV_420_888, 2);
+            mImageReader = ImageReader.newInstance(mPreviewSize.getWidth(), mPreviewSize.getHeight(), ImageFormat.YUV_420_888, 10);
             mImageReader.setOnImageAvailableListener(mVideoCapture, mBackgroundHandler);
             openCamera(mCameraId);
         }
