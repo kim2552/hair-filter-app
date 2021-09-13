@@ -23,6 +23,7 @@
 
 #include "render/Mesh.h"
 #include "globals.h"
+#include "Log.h"
 
 class FaceDetect
 {
