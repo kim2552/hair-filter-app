@@ -31,39 +31,44 @@ std::vector<std::vector<cv::Point2f>> FaceDetect::getFaceLandmarks(unsigned char
     std::vector<cv::Rect> faces;
     cv::equalizeHist(imageMat, imageMat);
 
-//    cv::Mat sharpenedImage;
-//    cv::GaussianBlur(imageMat, sharpenedImage, cv::Size(0, 0), 3);
-//    cv::addWeighted(imageMat, 1.5, sharpenedImage, -0.5, 0, sharpenedImage);
-    imageMat.convertTo(imageMat, -1, 1, 100); //increase the brightness by 100
+    cv::Mat sharpenedImage;
+    cv::GaussianBlur(imageMat, sharpenedImage, cv::Size(0, 0), 3);
+    cv::addWeighted(imageMat, 1.5, sharpenedImage, -0.5, 0, sharpenedImage);
+//    imageMat.convertTo(imageMat, -1, 1, 100); //increase the brightness by 100
 //    cv::addWeighted(imageMat, 1.5, imageMat, -0.5, 0, imageMat);
-    face_cascade.detectMultiScale(imageMat, faces, 1.05, 3, 0, cv::Size(50, 50));
+
+    // Minimum face size is 1/5th of screen height
+    // Maximum face size is 2/3rds of screen height
+    face_cascade.detectMultiScale(sharpenedImage, faces, 1.1, 3, 0,
+                                  cv::Size(RESIZED_IMAGE_HEIGHT / 5, RESIZED_IMAGE_HEIGHT / 5),
+                                  cv::Size(RESIZED_IMAGE_HEIGHT * 2 / 3, RESIZED_IMAGE_HEIGHT * 2 / 3));
 
     std::vector<std::vector<cv::Point2f>> shapes;
     if (faces.size() > 0) {
-        if(facemark->fit(imageMat, faces, shapes)){
-            for (size_t i = 0; i < faces.size(); i++)
-            {
-                cv::rectangle(imageMat, faces[i], cv::Scalar(255, 0, 0));
-            }
-            for (unsigned long i = 0; i < faces.size(); i++) {
-                for (unsigned long k = 0; k < shapes[i].size(); k++)
-                    cv::circle(imageMat, shapes[i][k], 2, cv::Scalar(0, 0, 255), cv::FILLED);
-            }
+        if(facemark->fit(sharpenedImage, faces, shapes)){
+//            for (size_t i = 0; i < faces.size(); i++)
+//            {
+//                cv::rectangle(imageMat, faces[i], cv::Scalar(255, 0, 0));
+//            }
+//            for (unsigned long i = 0; i < faces.size(); i++) {
+//                for (unsigned long k = 0; k < shapes[i].size(); k++)
+//                    cv::circle(imageMat, shapes[i][k], 2, cv::Scalar(0, 0, 255), cv::FILLED);
+//            }
         }
         __android_log_print(ANDROID_LOG_INFO, "FaceSize", "width: %d, height: %d", faces[0].size().width, faces[0].size().height);
     }
-    if(count == 50) {
-        std::string imageString = "";
-        for (int i = 0; i < RESIZED_IMAGE_WIDTH * RESIZED_IMAGE_HEIGHT; i++) {
-            if (i % 150 == 0) {
-                LOGE("%s", imageString.c_str());
-                imageString = "";
-            }
-            imageString += std::to_string(imageMat.data[i]) + " ";
-        }
-        LOGE("%s", imageString.c_str());
-    }
-    count++;
+    //            if(count == 50) {
+    //                std::string imageString = "";
+    //                for (int h = 0; h < RESIZED_IMAGE_WIDTH * RESIZED_IMAGE_HEIGHT; h++) {
+    //                    if (h % 150 == 0) {
+    //                        LOGE("%s", imageString.c_str());
+    //                        imageString = "";
+    //                    }
+    //                    imageString += std::to_string(imageMat.data[h]) + " ";
+    //                }
+    //                LOGE("%s", imageString.c_str());
+    //            }
+    //            count++;
     return shapes;
 }
 
