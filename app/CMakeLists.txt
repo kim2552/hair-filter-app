@@ -83,6 +83,7 @@ add_library( # Sets the name of the library.
         # Provides a relative path to your source file(s).
         ${SRC_DIR}/glad.c
         ${SRC_DIR}/render/stb.cpp
+        ${SRC_DIR}/include/tinyobj/tiny_obj_loader.cc
 
         ${SRC_DIR}/VideoRenderer.cpp
         ${SRC_DIR}/VideoRendererContext.cpp
@@ -100,6 +101,7 @@ add_library( # Sets the name of the library.
         ${SRC_DIR}/render/Camera.cpp
         ${SRC_DIR}/render/Mesh.cpp
         ${SRC_DIR}/render/Model.cpp
+        ${SRC_DIR}/render/ModelObj.cpp
 
         ${SRC_DIR}/face/FaceDetect.cpp
         ${SRC_DIR}/face/FaceMesh.cpp)

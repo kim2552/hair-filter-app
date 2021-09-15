@@ -59,12 +59,30 @@ void GLVideoRendererYUV420::init(ANativeWindow* window, size_t width, size_t hei
 {
     m_backingWidth = width;
     m_backingHeight = height;
+
+    const char* filename = (const char*)NULL;
+    unsigned char* hairimage;
+    int file_size;
+    AAssetDir* assetDirImg = AAssetManager_openDir(assetManager, "hair");
+    while ((filename = AAssetDir_getNextFileName(assetDirImg)) != NULL) {
+        if(strcmp(filename, "dark_blonde_2.jpg") == 0){
+            AAsset* asset = AAssetManager_open(assetManager, "hair/dark_blonde_2.jpg", AASSET_MODE_UNKNOWN);
+            file_size = AAsset_getLength(asset);
+            hairimage = (unsigned char*) malloc (sizeof(unsigned char)*file_size);
+            AAsset_read(asset,hairimage,file_size);
+            AAsset_close(asset);
+        }
+    }
+    AAssetDir_close(assetDirImg);
+
+    // Initialize texture
+    hairTextures.push_back(Texture(hairimage, "diffuse", 0, 894, 894, 3));
+	glEnable(GL_DEPTH_TEST);
 }
 
 // GLVideoRenderer render - occurs every new camera image
 void GLVideoRendererYUV420::render()
 {
-	glEnable(GL_DEPTH_TEST);
 	glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -108,6 +126,58 @@ void GLVideoRendererYUV420::render()
 		faceModels.push_back(faceModel);
 	}
 
+    std::vector<ModelObj> hairObjs;
+
+    for (auto fom : faceModels)
+    {
+        // Initialize model object
+        std::string filename = internalFilePaths[7];
+        ModelObj hairBob(filename, hairTextures);
+
+        // Transfer face mesh data to hair object
+        hairBob.model->topHeadCoord = fom.topHeadCoord;
+        hairBob.model->faceWidth = fom.faceWidth;
+        hairBob.model->faceHeight = fom.faceHeight;
+
+        // Activate shader for Object and configure the model matrix
+        glm::mat4 hairObjectModel = glm::mat4(1.0f);
+
+        // Calculate the scale of the hair object
+        float goldenRatioWidth = 1.7723179;				// Width ratio value based on developer preference			// TODO::Store values in json file
+        float goldenRatioHeight = 1.8758706;			// Height ratio value based on developer preference
+        float goldenZScale = 1.0f / 25.0f;				// Constant Z scale value based on developer preference
+        float objectWidth = glm::length(hairBob.model->originalBb.max.x - hairBob.model->originalBb.min.x);
+        float objectHeight = glm::length(hairBob.model->originalBb.max.y - hairBob.model->originalBb.min.y);
+        float scaleMultWidth = goldenRatioWidth * hairBob.model->faceWidth / objectWidth;
+        float scaleMultHeight = goldenRatioHeight * hairBob.model->faceHeight / objectHeight;
+        hairObjectModel = glm::scale(hairObjectModel, glm::vec3(scaleMultWidth, scaleMultHeight, goldenZScale));	// TODO::Find calculation for Z component
+
+        // Rotate object to match face direction
+        hairObjectModel = glm::rotate(hairObjectModel, glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+        hairObjectModel = glm::rotate(hairObjectModel, glm::radians(fom.pitch), glm::vec3(1.0f, 0.0f, 0.0f));
+        hairObjectModel = glm::rotate(hairObjectModel, glm::radians(fom.yaw), glm::vec3(0.0f, -1.0f, 0.0f));
+        hairObjectModel = glm::rotate(hairObjectModel, glm::radians(fom.roll), glm::vec3(0.0f, 0.0f, -1.0f));
+
+        hairBob.model->UpdateModel(hairObjectModel);			// Updates the position and bounding box of the scaled, rotated object
+
+        float goldenDiffX = -0.063447;		// Value obtained from fixedVertex distance from topHeadCoord	#TODO::Save values in a json file and retrieve it
+        float goldenDiffY = 0.021071;		// Value obtained from fixedVertex distance from topHeadCoord
+        float goldenDiffZ = 0.007910;		// Value obtained from fixedVertex distance from topHeadCoord
+
+        float transX = (goldenDiffX + hairBob.model->topHeadCoord.x) - hairBob.model->fixedVertex.x;
+        float transY = (goldenDiffY + hairBob.model->topHeadCoord.y) - hairBob.model->fixedVertex.y;
+        float transZ = (goldenDiffZ + hairBob.model->topHeadCoord.z) - hairBob.model->fixedVertex.z;
+
+        glm::mat4 translation = glm::translate(glm::mat4(1.f), glm::vec3(transX, transY, transZ));
+        hairObjectModel = translation * hairObjectModel;
+
+//        shaderProgramObj.Activate();
+//        glUniform4f(glGetUniformLocation(shaderProgramObj.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
+//        glUniform3f(glGetUniformLocation(shaderProgramObj.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
+        hairBob.model->UpdateModel(hairObjectModel);																// Update object model
+        hairObjs.push_back(hairBob);
+    }
+
 	// Create image mesh for camera preview
 	std::vector <Vertex> yuvImgV(imgVerts, imgVerts + sizeof(imgVerts) / sizeof(Vertex));
 	std::vector <GLuint> yuvImgI(imgInds, imgInds + sizeof(imgInds) / sizeof(GLuint));
@@ -115,6 +185,7 @@ void GLVideoRendererYUV420::render()
 
     // Draw all meshes
 	imgMesh->Draw(*shaderProgramImg, *camera, imgModel);		// Draw the image
+//	glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 	for (size_t i = 0; i < faceDetectMeshes.size(); i++)
 	{
 		faceDetectMeshes[i].Draw(*shaderProgramPoint, *camera, faceDetectModel, GL_LINE_STRIP);
@@ -123,6 +194,11 @@ void GLVideoRendererYUV420::render()
 	{
 		faceModels[i].Draw(*shaderProgramPoint,*camera);
 	}
+//	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+    for (size_t i = 0; i < hairObjs.size(); i++)
+    {
+        hairObjs[i].model->Draw(*shaderProgramImg, *camera);					// Draw the object
+    }
 }
 
 // Reads data from src to dst mirrored

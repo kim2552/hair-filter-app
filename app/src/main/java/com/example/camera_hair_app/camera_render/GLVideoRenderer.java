@@ -33,7 +33,8 @@ public class GLVideoRenderer extends VideoRenderer implements GLSurfaceView.Rend
     File mSfmModelContoursFile;
     File mSfmEdgeTopologyFile;
     File mExpressionBlendShapesFile;
-    String[] internalFilePaths = new String[7];
+    File mHairObjFile;
+    String[] internalFilePaths = new String[8];
 
 
     public GLVideoRenderer() { create(Type.GL_YUV420_FILTER.getValue()); }
@@ -47,6 +48,7 @@ public class GLVideoRenderer extends VideoRenderer implements GLSurfaceView.Rend
         mSfmModelContoursFile = new File(dir, "sfm_model_contours.json");
         mSfmEdgeTopologyFile = new File(dir, "sfm_3448_edge_topology.json");
         mExpressionBlendShapesFile = new File(dir, "expression_blendshapes_3448.bin");
+        mHairObjFile = new File(dir, "hair_bob.obj");
 
         createInternalFiles(context, mCascadeFile, "data/lbpcascade_frontalface_improved.xml", 0);
         createInternalFiles(context, mLandmarkFile, "data/lbfmodel.yaml", 1);
@@ -55,6 +57,7 @@ public class GLVideoRenderer extends VideoRenderer implements GLSurfaceView.Rend
         createInternalFiles(context, mSfmModelContoursFile, "data/sfm_model_contours.json", 4);
         createInternalFiles(context, mSfmEdgeTopologyFile, "data/sfm_3448_edge_topology.json", 5);
         createInternalFiles(context, mExpressionBlendShapesFile, "data/expression_blendshapes_3448.bin", 6);
+        createInternalFiles(context, mHairObjFile, "hair/hair_bob.obj", 7);
 
         //Pass AssetManager to JNI
         setAssetManager(context.getResources().getAssets());
