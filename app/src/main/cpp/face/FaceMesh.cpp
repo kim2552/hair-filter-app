@@ -112,6 +112,13 @@ glm::mat4 FaceMesh::genFaceModel(FaceMeshObj& faceMeshObj, GLuint camera_facing)
     faceMeshModel = glm::translate(faceMeshModel, glm::vec3(0.375f, -0.5f, -0.875f));
     faceMeshModel = glm::rotate(faceMeshModel, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
+    return faceMeshModel;
+}
+
+FaceProperties FaceMesh::genProperties(FaceMeshObj& faceMeshObj, glm::mat4 model)
+{
+    FaceProperties properties;
+
     const auto th = glm::project(
             { faceMeshObj.mesh.vertices[FACE_MESH_TOPHEAD_INDEX][0], faceMeshObj.mesh.vertices[FACE_MESH_TOPHEAD_INDEX][1], faceMeshObj.mesh.vertices[FACE_MESH_TOPHEAD_INDEX][2] },
             faceMeshObj.rendering_parameters.get_modelview(), faceMeshObj.rendering_parameters.get_projection(), glm::vec4(0, RESIZED_IMAGE_HEIGHT, RESIZED_IMAGE_WIDTH, -RESIZED_IMAGE_HEIGHT));
@@ -125,5 +132,18 @@ glm::mat4 FaceMesh::genFaceModel(FaceMeshObj& faceMeshObj, GLuint camera_facing)
             { faceMeshObj.mesh.vertices[FACE_MESH_LEFTCONTOUR_INDEX][0], faceMeshObj.mesh.vertices[FACE_MESH_LEFTCONTOUR_INDEX][1], faceMeshObj.mesh.vertices[FACE_MESH_LEFTCONTOUR_INDEX][2] },
             faceMeshObj.rendering_parameters.get_modelview(), faceMeshObj.rendering_parameters.get_projection(), glm::vec4(0, RESIZED_IMAGE_HEIGHT, RESIZED_IMAGE_WIDTH, -RESIZED_IMAGE_HEIGHT));
 
-    return faceMeshModel;
+    glm::vec4 vth(glm::vec3(th.x * IMAGE_ASPECT_RATIO / (float)RESIZED_IMAGE_WIDTH, th.y / (float)RESIZED_IMAGE_HEIGHT, -th.z / (float)RESIZED_IMAGE_HEIGHT), 1.0f);
+    glm::vec4 vbh(glm::vec3(bh.x* IMAGE_ASPECT_RATIO / (float)RESIZED_IMAGE_WIDTH, bh.y / (float)RESIZED_IMAGE_HEIGHT, -bh.z / (float)RESIZED_IMAGE_HEIGHT), 1.0f);
+    glm::vec4 vrc(glm::vec3(rc.x* IMAGE_ASPECT_RATIO / (float)RESIZED_IMAGE_WIDTH, rc.y / (float)RESIZED_IMAGE_HEIGHT, -rc.z / (float)RESIZED_IMAGE_HEIGHT), 1.0f);
+    glm::vec4 vlc(glm::vec3(lc.x* IMAGE_ASPECT_RATIO / (float)RESIZED_IMAGE_WIDTH, lc.y / (float)RESIZED_IMAGE_HEIGHT, -lc.z / (float)RESIZED_IMAGE_HEIGHT), 1.0f);
+
+    vth = model * vth;
+    vbh = model * vbh;
+    vrc = model * vrc;
+    vlc = model * vlc;
+    properties.topHeadCoord = vth;
+    properties.faceWidth = glm::length(vrc - vlc);
+    properties.faceHeight = glm::length(vth - vbh);
+
+    return properties;
 }

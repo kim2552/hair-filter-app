@@ -99,6 +99,7 @@ add_library( # Sets the name of the library.
         ${SRC_DIR}/render/Texture.cpp
         ${SRC_DIR}/render/Camera.cpp
         ${SRC_DIR}/render/Mesh.cpp
+        ${SRC_DIR}/render/Model.cpp
 
         ${SRC_DIR}/face/FaceDetect.cpp
         ${SRC_DIR}/face/FaceMesh.cpp)

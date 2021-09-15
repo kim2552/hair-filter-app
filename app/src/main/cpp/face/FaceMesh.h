@@ -29,6 +29,12 @@ struct FaceMeshObj{
     eos::fitting::RenderingParameters rendering_parameters;
 };
 
+struct FaceProperties{
+    glm::vec3 topHeadCoord;
+    float faceWidth;
+    float faceHeight;
+};
+
 class FaceMesh
 {
 public:
@@ -49,6 +55,7 @@ public:
     FaceMeshObj getFaceMeshObj(eos::core::LandmarkCollection<Eigen::Vector2f> landmarks, int imgWidth, int imgHeight);
     glm::mat4 genFaceModel(FaceMeshObj& faceMeshObj, GLuint camera_facing);
     Mesh genFaceMesh(FaceMeshObj& faceMeshObj);
+    FaceProperties genProperties(FaceMeshObj& faceMeshObj, glm::mat4 model);
 
 private:
     std::string modelfile;

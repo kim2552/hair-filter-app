@@ -87,6 +87,7 @@ void GLVideoRendererYUV420::render()
 	for(auto fmMesh : faceMeshMeshes) fmMesh.Delete();
     faceMeshMeshes.clear();
 	faceMeshModel.clear();
+	faceModels.clear();
 	for (size_t i = 0; i < faces.size(); i++)						// Loop through all the faces
 	{
 		eos::core::LandmarkCollection<Eigen::Vector2f> landmarkCollection = faceMesh.processLandmarks(
@@ -95,6 +96,16 @@ void GLVideoRendererYUV420::render()
 														  RESIZED_IMAGE_HEIGHT);
 		faceMeshMeshes.push_back(faceMesh.genFaceMesh(faceMeshObj));
 		faceMeshModel.push_back(faceMesh.genFaceModel(faceMeshObj, m_cameraFacing));
+
+		FaceProperties props = faceMesh.genProperties(faceMeshObj, faceMeshModel[i]);
+
+		Model faceModel(faceMeshMeshes);
+		faceModel.topHeadCoord = props.topHeadCoord;
+		faceModel.faceWidth = props.faceWidth;
+		faceModel.faceHeight = props.faceHeight;
+
+		faceModel.UpdateModel(faceMeshModel[i]);
+		faceModels.push_back(faceModel);
 	}
 
 	// Create image mesh for camera preview
@@ -107,6 +118,10 @@ void GLVideoRendererYUV420::render()
 	for (size_t i = 0; i < faceDetectMeshes.size(); i++)
 	{
 		faceDetectMeshes[i].Draw(*shaderProgramPoint, *camera, faceDetectModel, GL_LINE_STRIP);
+	}
+	for(size_t i=0;i<faceModels.size();i++)
+	{
+		faceModels[i].Draw(*shaderProgramPoint,*camera);
 	}
 }
 
