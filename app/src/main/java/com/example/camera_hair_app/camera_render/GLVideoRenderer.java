@@ -28,7 +28,12 @@ public class GLVideoRenderer extends VideoRenderer implements GLSurfaceView.Rend
 
     File mCascadeFile;
     File mLandmarkFile;
-    String[] internalFilePaths = new String[2];
+    File mSfmShapeFile;
+    File mIbugToSfmFile;
+    File mSfmModelContoursFile;
+    File mSfmEdgeTopologyFile;
+    File mExpressionBlendShapesFile;
+    String[] internalFilePaths = new String[7];
 
 
     public GLVideoRenderer() { create(Type.GL_YUV420_FILTER.getValue()); }
@@ -37,9 +42,20 @@ public class GLVideoRenderer extends VideoRenderer implements GLSurfaceView.Rend
         File dir = context.getDir("data", context.MODE_PRIVATE);
         mCascadeFile = new File(dir, "face_frontal.xml");
         mLandmarkFile = new File(dir, "face_landmark.xml");
+        mSfmShapeFile = new File(dir, "sfm_shape_3448.bin");
+        mIbugToSfmFile = new File(dir, "ibug_to_sfm.txt");
+        mSfmModelContoursFile = new File(dir, "sfm_model_contours.json");
+        mSfmEdgeTopologyFile = new File(dir, "sfm_3448_edge_topology.json");
+        mExpressionBlendShapesFile = new File(dir, "expression_blendshapes_3448.bin");
 
         createInternalFiles(context, mCascadeFile, "data/lbpcascade_frontalface_improved.xml", 0);
         createInternalFiles(context, mLandmarkFile, "data/lbfmodel.yaml", 1);
+        createInternalFiles(context, mSfmShapeFile, "data/sfm_shape_3448.bin", 2);
+        createInternalFiles(context, mIbugToSfmFile, "data/ibug_to_sfm.txt", 3);
+        createInternalFiles(context, mSfmModelContoursFile, "data/sfm_model_contours.json", 4);
+        createInternalFiles(context, mSfmEdgeTopologyFile, "data/sfm_3448_edge_topology.json", 5);
+        createInternalFiles(context, mExpressionBlendShapesFile, "data/expression_blendshapes_3448.bin", 6);
+
         //Pass AssetManager to JNI
         setAssetManager(context.getResources().getAssets());
         setInternalFiles(internalFilePaths);

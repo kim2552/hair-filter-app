@@ -100,7 +100,8 @@ add_library( # Sets the name of the library.
         ${SRC_DIR}/render/Camera.cpp
         ${SRC_DIR}/render/Mesh.cpp
 
-        ${SRC_DIR}/face/FaceDetect.cpp)
+        ${SRC_DIR}/face/FaceDetect.cpp
+        ${SRC_DIR}/face/FaceMesh.cpp)
 
 # Searches for a specified prebuilt library and stores the path as a
 # variable. Because CMake includes system libraries in the search path by

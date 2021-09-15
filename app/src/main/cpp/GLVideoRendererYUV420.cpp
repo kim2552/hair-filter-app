@@ -83,6 +83,20 @@ void GLVideoRendererYUV420::render()
         faceDetectMeshes.push_back(faceDetect.genFaceMesh(faces[i]));
     }
 
+    // Create FaceMesh models from all faces detected
+	for(auto fmMesh : faceMeshMeshes) fmMesh.Delete();
+    faceMeshMeshes.clear();
+	faceMeshModel.clear();
+	for (size_t i = 0; i < faces.size(); i++)						// Loop through all the faces
+	{
+		eos::core::LandmarkCollection<Eigen::Vector2f> landmarkCollection = faceMesh.processLandmarks(
+				faces[i]);
+		FaceMeshObj faceMeshObj = faceMesh.getFaceMeshObj(landmarkCollection, RESIZED_IMAGE_WIDTH,
+														  RESIZED_IMAGE_HEIGHT);
+		faceMeshMeshes.push_back(faceMesh.genFaceMesh(faceMeshObj));
+		faceMeshModel.push_back(faceMesh.genFaceModel(faceMeshObj, m_cameraFacing));
+	}
+
 	// Create image mesh for camera preview
 	std::vector <Vertex> yuvImgV(imgVerts, imgVerts + sizeof(imgVerts) / sizeof(Vertex));
 	std::vector <GLuint> yuvImgI(imgInds, imgInds + sizeof(imgInds) / sizeof(GLuint));
@@ -240,6 +254,7 @@ void GLVideoRendererYUV420::setInternalFilePaths(std::vector<std::string> file_p
     internalFilePaths = file_paths;
 
     faceDetect.init(internalFilePaths);
+    faceMesh.init(internalFilePaths);
 }
 
 void GLVideoRendererYUV420::setParameters(uint32_t params)

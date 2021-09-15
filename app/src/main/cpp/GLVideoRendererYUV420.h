@@ -8,6 +8,7 @@
 #include "render/Camera.h"
 #include "render/Mesh.h"
 #include "face/FaceDetect.h"
+#include "face/FaceMesh.h"
 
 class GLVideoRendererYUV420 : public VideoRenderer
 {
@@ -76,6 +77,10 @@ private:
 	FaceDetect faceDetect;
 	std::vector<Mesh> faceDetectMeshes;
 	glm::mat4 faceDetectModel;
+
+    FaceMesh faceMesh;
+	std::vector<Mesh> faceMeshMeshes;
+	std::vector<glm::mat4> faceMeshModel;
 };
 
 #endif //_GL_VIDEO_RENDERER_YUV_H_
