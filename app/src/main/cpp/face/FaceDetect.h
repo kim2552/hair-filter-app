@@ -13,6 +13,7 @@
 #include "opencv2/videoio.hpp"
 #include "opencv2/face.hpp"
 #include "opencv2/face/facemark.hpp"
+#include "opencv2/opencv.hpp"
 
 #include "dlib/image_processing/frontal_face_detector.h"
 #include "dlib/image_processing/render_face_detections.h"
@@ -51,10 +52,10 @@ public:
 
     void init(std::vector<std::string> file_paths);
 
-    std::vector<std::vector<cv::Point2f>> getFaceLandmarks(unsigned char* image, int width, int height);
+    std::vector<FaceDetectObj> getFaceLandmarks(unsigned char* image, int width, int height);
 
     glm::mat4 genFaceModel(GLuint camera_facing);
-    Mesh genFaceMesh(std::vector<cv::Point2f>& face);
+    Mesh genFaceMesh(std::vector<cv::Point>& shape);
 
     cv::CascadeClassifier face_cascade;
 
@@ -62,6 +63,8 @@ public:
 
     dlib::shape_predictor shape_predictor;
     dlib::frontal_face_detector face_detector;
+
+    unsigned char* face_mask_image;
 
     std::vector<Texture> fdTextures;    // empty list
     // Vertices coordinates for face
@@ -173,9 +176,7 @@ public:
                     65, 57, 56,
                     65, 56, 55,
                     53, 65, 55,
-                    53, 55, 64,
-                    5, 68, 69,	// Neck
-                    11, 5, 69	// Neck
+                    53, 55, 64
             };
 };
 

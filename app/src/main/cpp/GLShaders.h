@@ -78,8 +78,6 @@ static const char imageFragmentShader[] =
     uniform sampler2D s_textureY;\
     uniform sampler2D s_textureU;\
     uniform sampler2D s_textureV;\
-    uniform sampler2D diffuse0;\
-    uniform sampler2D specular0;\
     uniform vec4 lightColor;\
     uniform vec3 lightPos;\
     uniform vec3 camPos;\
@@ -88,6 +86,39 @@ static const char imageFragmentShader[] =
         float y=texture(s_textureY,texCoord).r;\
         float u=texture(s_textureU,texCoord).r;\
         float v=texture(s_textureV,texCoord).r;\
+        u=u-0.5;\
+        v=v-0.5;\
+        float r=y+1.403*v;\
+        float g=y-0.344*u-0.714*v;\
+        float b=y+1.770*u;\
+        FragColor=vec4(r,g,b,1.0);\
+    }";
+
+// Pixel shader, YUV420 to RGB conversion.
+static const char imageMaskFragmentShader[] =
+        "#version 300 es\n\
+    out vec4 FragColor;\
+    in vec3 crntPos;\
+    in vec3 Normal;\
+    in vec3 color;\
+    in vec2 texCoord;\
+    uniform sampler2D s_textureY;\
+    uniform sampler2D s_textureU;\
+    uniform sampler2D s_textureV;\
+    uniform sampler2D transparency;\
+    uniform vec4 lightColor;\
+    uniform vec3 lightPos;\
+    uniform vec3 camPos;\
+    void main()\
+    {\
+        float y=texture(s_textureY,texCoord).r;\
+        float u=texture(s_textureU,texCoord).r;\
+        float v=texture(s_textureV,texCoord).r;\
+        float mask = texture(transparency,texCoord).r;\
+        if(mask == 0.0)\
+        {\
+            discard;\
+        }\
         u=u-0.5;\
         v=v-0.5;\
         float r=y+1.403*v;\
@@ -132,9 +163,12 @@ static const char modelFragmentShader[] =
     uniform vec4 lightColor;\
     uniform vec3 lightPos;\
     uniform vec3 camPos;\
-    void main()\
-    {\
-        FragColor = texture(diffuse0, texCoord);\
+    void main() {\
+        float ambient = 0.80f;\
+        vec3 normal = normalize(Normal);\
+        vec3 lightDirection = normalize(vec3(1.0f, 1.0f, 0.0f));\
+        float diffuse = max(dot(normal, lightDirection), 0.0f);\
+        FragColor = (texture(diffuse0, texCoord) * (diffuse + ambient)) * lightColor * vec4(color, 1.0f);\
     }";
 
 // Vertex shader.

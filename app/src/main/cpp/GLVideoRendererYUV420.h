@@ -71,6 +71,7 @@ private:
 	Camera* camera;
 
 	Shader* shaderProgramImg;		// Shader program for image drawing
+	Shader* shaderProgramMask;		// Shader program for image mask
 	Shader* shaderProgramPoint;		// Shader program for misc point drawing
 	Shader* shaderProgramModel;
 
@@ -79,6 +80,7 @@ private:
     std::vector<Texture> yuvImgTextures;
 
 	FaceDetect faceDetect;
+	std::vector<FaceDetectObj> faceObjs;
 	std::vector<Mesh> faceDetectMeshes;
 	glm::mat4 faceDetectModel;
 

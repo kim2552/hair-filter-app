@@ -29,7 +29,7 @@ public class GLVideoRenderer extends VideoRenderer implements GLSurfaceView.Rend
     File mCascadeFile;
     File mLandmarkFile;
     File mHairObjFile;
-    String[] internalFilePaths = new String[8];
+    String[] internalFilePaths = new String[3];
 
 
     public GLVideoRenderer() { create(Type.GL_YUV420_FILTER.getValue()); }
