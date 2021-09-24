@@ -5,15 +5,23 @@
 #include <android/log.h>
 #include "FaceDetect.h"
 
+//Intrisics can be calculated using opencv sample code under opencv/sources/samples/cpp/tutorial_code/calib3d
+//Normally, you can also apprximate fx and fy by image width, cx by half image width, cy by half image height instead
+double K[9] = { 6.5308391993466671e+002, 0.0, 3.1950000000000000e+002, 0.0, 6.5308391993466671e+002, 2.3950000000000000e+002, 0.0, 0.0, 1.0 };
+double D[5] = { 7.0834633684407095e-002, 6.9140193737175351e-002, 0.0, 0.0, -1.3073460323689292e+000 };
+
 FaceDetect::FaceDetect()
 {
 }
 
 void FaceDetect::init(std::vector<std::string> file_paths)
 {
+    // Load face cascade and face landmarks files
     face_cascade.load(file_paths[0]);
-    facemark = cv::face::createFacemarkLBF();
-    facemark->loadModel(file_paths[1]);
+    dlib::deserialize(file_paths[1]) >> shape_predictor;
+
+    markers.create(cv::Size(RESIZED_IMAGE_WIDTH, RESIZED_IMAGE_HEIGHT), CV_8UC1);
+    markers.setTo(cv::Scalar(0.0));
 }
 
 std::vector<std::vector<cv::Point2f>> FaceDetect::getFaceLandmarks(unsigned char* image, int width, int height)
@@ -34,8 +42,6 @@ std::vector<std::vector<cv::Point2f>> FaceDetect::getFaceLandmarks(unsigned char
     cv::Mat sharpenedImage;
     cv::GaussianBlur(imageMat, sharpenedImage, cv::Size(0, 0), 3);
     cv::addWeighted(imageMat, 1.5, sharpenedImage, -0.5, 0, sharpenedImage);
-//    imageMat.convertTo(imageMat, -1, 1, 100); //increase the brightness by 100
-//    cv::addWeighted(imageMat, 1.5, imageMat, -0.5, 0, imageMat);
 
     // Minimum face size is 1/5th of screen height
     // Maximum face size is 2/3rds of screen height
@@ -44,31 +50,7 @@ std::vector<std::vector<cv::Point2f>> FaceDetect::getFaceLandmarks(unsigned char
                                   cv::Size(RESIZED_IMAGE_HEIGHT * 2 / 3, RESIZED_IMAGE_HEIGHT * 2 / 3));
 
     std::vector<std::vector<cv::Point2f>> shapes;
-    if (faces.size() > 0) {
-        if(facemark->fit(sharpenedImage, faces, shapes)){
-//            for (size_t i = 0; i < faces.size(); i++)
-//            {
-//                cv::rectangle(imageMat, faces[i], cv::Scalar(255, 0, 0));
-//            }
-//            for (unsigned long i = 0; i < faces.size(); i++) {
-//                for (unsigned long k = 0; k < shapes[i].size(); k++)
-//                    cv::circle(imageMat, shapes[i][k], 2, cv::Scalar(0, 0, 255), cv::FILLED);
-//            }
-        }
-        __android_log_print(ANDROID_LOG_INFO, "FaceSize", "width: %d, height: %d", faces[0].size().width, faces[0].size().height);
-    }
-    //            if(count == 50) {
-    //                std::string imageString = "";
-    //                for (int h = 0; h < RESIZED_IMAGE_WIDTH * RESIZED_IMAGE_HEIGHT; h++) {
-    //                    if (h % 150 == 0) {
-    //                        LOGE("%s", imageString.c_str());
-    //                        imageString = "";
-    //                    }
-    //                    imageString += std::to_string(imageMat.data[h]) + " ";
-    //                }
-    //                LOGE("%s", imageString.c_str());
-    //            }
-    //            count++;
+
     return shapes;
 }
 
@@ -102,4 +84,3 @@ Mesh FaceDetect::genFaceMesh(std::vector<cv::Point2f>& face)
 
     return Mesh(fdVerts, fdIndices, fdTextures);
 }
-

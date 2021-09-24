@@ -45,6 +45,7 @@ private:
 	std::unique_ptr<uint8_t[]> m_pDataY;
     uint8_t * m_pDataU;
     uint8_t * m_pDataV;
+	std::unique_ptr<uint8_t[]> m_pDataA;	// Alpha channel
 
     size_t m_length;
 	size_t m_sizeY;
@@ -71,6 +72,7 @@ private:
 
 	Shader* shaderProgramImg;		// Shader program for image drawing
 	Shader* shaderProgramPoint;		// Shader program for misc point drawing
+	Shader* shaderProgramModel;
 
 	Mesh* imgMesh;
 	glm::mat4 imgModel;
@@ -79,11 +81,6 @@ private:
 	FaceDetect faceDetect;
 	std::vector<Mesh> faceDetectMeshes;
 	glm::mat4 faceDetectModel;
-
-    FaceMesh faceMesh;
-	std::vector<Mesh> faceMeshMeshes;
-	std::vector<glm::mat4> faceMeshModel;
-	std::vector<Model> faceModels;
 
 	std::vector<Texture> hairTextures;
 };

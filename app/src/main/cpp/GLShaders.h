@@ -96,6 +96,47 @@ static const char imageFragmentShader[] =
         FragColor=vec4(r,g,b,1.0);\
     }";
 
+// Model shader.
+static const char modelVertexShader[] =
+        "#version 300 es\n\
+    layout (location = 0) in vec3 aPos;\
+    layout (location = 1) in vec3 aNormal;\
+    layout (location = 2) in vec3 aColor;\
+    layout (location = 3) in vec2 aTex;\
+    out vec3 crntPos;\
+    out vec3 Normal;\
+    out vec3 color;\
+    out vec2 texCoord;\
+    uniform mat4 camMatrix;\
+    uniform mat4 model;\
+    uniform mat4 translation;\
+    uniform mat4 rotation;\
+    uniform mat4 scale;\
+    void main(){\
+        crntPos=vec3(model*translation*-rotation*scale*vec4(aPos,1.0f));\
+        Normal=aNormal;\
+        color=aColor;\
+        texCoord=aTex;\
+        gl_Position=camMatrix*vec4(crntPos,1.0);\
+    }";
+
+static const char modelFragmentShader[] =
+        "#version 300 es\n\
+    out vec4 FragColor;\
+    in vec3 crntPos;\
+    in vec3 Normal;\
+    in vec3 color;\
+    in vec2 texCoord;\
+    uniform sampler2D diffuse0;\
+    uniform sampler2D specular0;\
+    uniform vec4 lightColor;\
+    uniform vec3 lightPos;\
+    uniform vec3 camPos;\
+    void main()\
+    {\
+        FragColor = texture(diffuse0, texCoord);\
+    }";
+
 // Vertex shader.
 static const char kVertexShader[] =
     "#version 100\n\

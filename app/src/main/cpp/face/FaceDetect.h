@@ -14,16 +14,35 @@
 #include "opencv2/face.hpp"
 #include "opencv2/face/facemark.hpp"
 
+#include "dlib/image_processing/frontal_face_detector.h"
+#include "dlib/image_processing/render_face_detections.h"
+#include "dlib/image_processing.h"
+#include "dlib/opencv.h"
+
 #include <GLES3/gl3.h>
 #include <glm/glm.hpp>
-#include<glm/gtc/matrix_transform.hpp>
-#include<glm/gtc/type_ptr.hpp>
-#include<glm/gtx/rotate_vector.hpp>
-#include<glm/gtx/vector_angle.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/rotate_vector.hpp>
+#include <glm/gtx/vector_angle.hpp>
 
 #include "render/Mesh.h"
 #include "globals.h"
 #include "Log.h"
+
+struct FaceDetectObj {
+    std::vector<cv::Point> shape;
+    cv::Point topHeadPoint;
+    cv::Point botHeadPoint;
+    cv::Point rightHeadPoint;
+    cv::Point leftHeadPoint;
+    glm::vec3 topHeadCoord;
+    float width;
+    float height;
+    float yaw;
+    float pitch;
+    float roll;
+};
 
 class FaceDetect
 {
@@ -38,7 +57,11 @@ public:
     Mesh genFaceMesh(std::vector<cv::Point2f>& face);
 
     cv::CascadeClassifier face_cascade;
-    cv::Ptr<cv::face::Facemark> facemark;
+
+    cv::Mat markers;
+
+    dlib::shape_predictor shape_predictor;
+    dlib::frontal_face_detector face_detector;
 
     std::vector<Texture> fdTextures;    // empty list
     // Vertices coordinates for face
