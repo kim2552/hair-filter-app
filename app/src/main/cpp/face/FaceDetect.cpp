@@ -19,15 +19,13 @@ void FaceDetect::init(std::vector<std::string> file_paths)
     // Load face cascade and face landmarks files
     face_cascade.load(file_paths[0]);
     dlib::deserialize(file_paths[1]) >> shape_predictor;
-
-    markers.create(cv::Size(RESIZED_IMAGE_WIDTH, RESIZED_IMAGE_HEIGHT), CV_8UC1);
-    markers.setTo(cv::Scalar(0.0));
-    cv::rotate(markers, markers, cv::ROTATE_90_CLOCKWISE);
 }
 
 std::vector<FaceDetectObj> FaceDetect::getFaceLandmarks(unsigned char* image, int width, int height)
 {
-    cv::rotate(markers, markers, cv::ROTATE_90_COUNTERCLOCKWISE);
+    markers.create(cv::Size(RESIZED_IMAGE_WIDTH, RESIZED_IMAGE_HEIGHT), CV_8UC1);
+    markers.setTo(cv::Scalar(0.0));
+
     markers.setTo(cv::Scalar(0.0));
     std::vector<FaceDetectObj> faceDetectObjs;
 
@@ -116,18 +114,18 @@ std::vector<FaceDetectObj> FaceDetect::getFaceLandmarks(unsigned char* image, in
                 p_transformed.y = RESIZED_IMAGE_HEIGHT - p.y;
                 obj.leftHeadPoint = p_transformed;
             }
-            if (k == 5) {
-                cv::Point p_transformed;
-                p_transformed.x = p.x;
-                p_transformed.y = RESIZED_IMAGE_HEIGHT;
-                pts.push_back(p_transformed);
-            }
-            if (k == 11) {
-                cv::Point p_transformed;
-                p_transformed.x = p.x;
-                p_transformed.y = RESIZED_IMAGE_HEIGHT;
-                pts.push_back(p_transformed);
-            }
+//            if (k == 5) {
+//                cv::Point p_transformed;
+//                p_transformed.x = p.x;
+//                p_transformed.y = RESIZED_IMAGE_HEIGHT;
+//                pts.push_back(p_transformed);
+//            }
+//            if (k == 11) {
+//                cv::Point p_transformed;
+//                p_transformed.x = p.x;
+//                p_transformed.y = RESIZED_IMAGE_HEIGHT;
+//                pts.push_back(p_transformed);
+//            }
             if (k == 57) {
                 mouth_central_bottom_corner = p;
             }
@@ -236,6 +234,7 @@ std::vector<FaceDetectObj> FaceDetect::getFaceLandmarks(unsigned char* image, in
         obj.shape = pts;
         faceDetectObjs.push_back(obj);
     }
+    cv::resize(markers, markers, cv::Size(height, width), 0, 0, cv::INTER_NEAREST);
     cv::rotate(markers, markers, cv::ROTATE_90_CLOCKWISE);
     face_mask_image = markers.data;
 

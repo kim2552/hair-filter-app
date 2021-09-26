@@ -66,8 +66,8 @@ void GLVideoRendererYUV420::init(ANativeWindow* window, size_t width, size_t hei
     int file_size;
     AAssetDir* assetDirImg = AAssetManager_openDir(assetManager, "hair");
     while ((filename = AAssetDir_getNextFileName(assetDirImg)) != NULL) {
-        if(strcmp(filename, "dark_blonde_2.jpg") == 0){
-            AAsset* asset = AAssetManager_open(assetManager, "hair/dark_blonde_2.jpg", AASSET_MODE_UNKNOWN);
+        if(strcmp(filename, "blonde.png") == 0){
+            AAsset* asset = AAssetManager_open(assetManager, "hair/blonde.png", AASSET_MODE_UNKNOWN);
             file_size = AAsset_getLength(asset);
             hairimage = (unsigned char*) malloc (sizeof(unsigned char)*file_size);
             AAsset_read(asset,hairimage,file_size);
@@ -77,10 +77,10 @@ void GLVideoRendererYUV420::init(ANativeWindow* window, size_t width, size_t hei
     AAssetDir_close(assetDirImg);
 
     // Initialize texture
-    hairTextures.push_back(Texture(hairimage, "diffuse", 0, 894, 894, 3));
+    hairTextures.push_back(Texture(hairimage,file_size, "diffuse", 0));
 	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+//	glEnable(GL_BLEND);
+//	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 // GLVideoRenderer render - occurs every new camera image
@@ -107,7 +107,7 @@ void GLVideoRendererYUV420::render()
 	/*********** TODO::Create class and optimize ***********/
 
     // Store the mask image
-    yuvImgTextures.push_back(Texture(faceDetect.face_mask_image, "transparency", 3, RESIZED_IMAGE_WIDTH, RESIZED_IMAGE_HEIGHT,1));
+    yuvImgTextures.push_back(Texture(faceDetect.face_mask_image, "transparency", 3, m_width, m_height,1));
 
 	// Store mesh data in vectors for the mesh
 	std::vector <Vertex> mVerts(imgVerts, imgVerts + sizeof(imgVerts) / sizeof(Vertex));
@@ -176,8 +176,8 @@ void GLVideoRendererYUV420::render()
 
 		// TODO::Store values in json file
         // Calculate the scale of the hair object
-        float goldenRatioWidth = 1.977070;				// Width ratio value based on developer preference
-        float goldenRatioHeight = 1.645675;			// Height ratio value based on developer preference
+        float goldenRatioWidth = 1.675289;				// Width ratio value based on developer preference
+        float goldenRatioHeight = 1.345798;			// Height ratio value based on developer preference
         float goldenZScale = 0.030815;				// Constant Z scale value based on developer preference
         float objectWidth = glm::length(hairBob.model->originalBb.max.x - hairBob.model->originalBb.min.x);
         float objectHeight = glm::length(hairBob.model->originalBb.max.y - hairBob.model->originalBb.min.y);
@@ -193,9 +193,9 @@ void GLVideoRendererYUV420::render()
 
         hairBob.model->UpdateModel(hairObjectModel);			// Updates the position and bounding box of the scaled, rotated object
 		// TODO::Save values in a json file and retrieve it
-        float goldenDiffX = -0.075976;		// Value obtained from fixedVertex distance from topHeadCoord
-        float goldenDiffY = 0.055150;		// Value obtained from fixedVertex distance from topHeadCoord
-        float goldenDiffZ = -1.009983;		// Value obtained from fixedVertex distance from topHeadCoord
+        float goldenDiffX = -0.115976;		// Value obtained from fixedVertex distance from topHeadCoord
+        float goldenDiffY = 0.025150;		// Value obtained from fixedVertex distance from topHeadCoord
+        float goldenDiffZ = -0.989983;		// Value obtained from fixedVertex distance from topHeadCoord
 
         float transX = (goldenDiffX + hairBob.model->topHeadCoord.x) - hairBob.model->fixedVertex.x;
         float transY = (goldenDiffY + hairBob.model->topHeadCoord.y) - hairBob.model->fixedVertex.y;
