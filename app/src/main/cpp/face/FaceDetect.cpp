@@ -17,8 +17,8 @@ FaceDetect::FaceDetect()
 void FaceDetect::init(std::vector<std::string> file_paths)
 {
     // Load face cascade and face landmarks files
-    face_cascade.load(file_paths[0]);
-    dlib::deserialize(file_paths[1]) >> shape_predictor;
+    face_cascade.load(file_paths[1]);
+    dlib::deserialize(file_paths[2]) >> shape_predictor;
 }
 
 std::vector<FaceDetectObj> FaceDetect::getFaceLandmarks(unsigned char* image, int width, int height)

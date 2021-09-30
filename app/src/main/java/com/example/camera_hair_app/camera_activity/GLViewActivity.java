@@ -53,14 +53,20 @@ public class GLViewActivity extends BaseViewActivity implements ActivityCompat.O
         btnFilterLeft.setOnClickListener(v -> {
             mParams = mVideoRenderer.getVideoParamaters();
             mParams -= 1;
-            mVideoRenderer.setVideoParameters(mParams);
+            if(mParams < 0){
+                mParams = 0;
+            }
+            mVideoRenderer.setVideoParameters(mParams, appContext);
         });
 
         Button btnFilterRight = (Button) findViewById(R.id.filter_right);
         btnFilterRight.setOnClickListener(v -> {
             mParams = mVideoRenderer.getVideoParamaters();
             mParams += 1;
-            mVideoRenderer.setVideoParameters(mParams);
+            if(mParams > 1){
+                mParams = 1;
+            }
+            mVideoRenderer.setVideoParameters(mParams, appContext);
         });
     }
 

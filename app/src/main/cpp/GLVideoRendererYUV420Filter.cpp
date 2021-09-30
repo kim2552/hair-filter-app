@@ -31,8 +31,6 @@ void GLVideoRendererYUV420Filter::setParameters(uint32_t params)
 
 uint32_t GLVideoRendererYUV420Filter::getParameters()
 {
-    m_params |= (m_fragmentShader.size() << 4) & 0x000000F0;
-
     return m_params;
 }
 

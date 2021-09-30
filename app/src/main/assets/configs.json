@@ -1,0 +1,36 @@
+{	"hairs" :{
+		"0" :{
+			"path" : "hair/hair_bob.obj",
+			"transformations" : {
+				"ratio_width": 1.745784,
+				"ratio_height": 1.361974,
+				"scale_z": 0.030030,
+				"pitch": 182.000122,
+				"yaw": 13.800016,
+				"roll": 0,
+				"topheadx": -0.052701,
+				"topheady": -0.007179,
+				"topheadz": -1.020658,
+				"front_vert_index": 174}
+		},
+		"1" : {
+			"path" : "hair/ponytail4.obj",
+			"transformations" : {
+				"ratio_width": 1.252658,
+				"ratio_height": 1.673405,
+				"scale_z": 0.130800,
+				"pitch": -200.303024,
+				"yaw": -8.799997,
+				"roll": 3.999998,
+				"topheadx": 0.011439,
+				"topheady": 0.023838,
+				"topheadz": -1.071259,
+				"front_vert_index": 139}
+		}
+	},
+	"textures" :{
+		"0" :{
+			"path": "hair/blonde.png"
+		}
+	}
+}

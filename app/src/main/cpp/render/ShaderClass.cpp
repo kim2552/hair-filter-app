@@ -5,26 +5,6 @@
 #include"render/ShaderClass.h"
 #include<android/asset_manager.h>
 
-// Reads a text file and outputs a string with everything in the text file
-std::string get_file_contents(const char* file_content)
-{
-    std::string file_content_str(file_content);
-    return file_content_str;
-//    AAsset* asset = AAssetManager_open(android_asset_manager, fname, 0);
-//    std::ifstream in(filename, std::ios::binary);
-//    if (in)
-//    {
-//        std::string contents;
-//        in.seekg(0, std::ios::end);
-//        contents.resize(in.tellg());
-//        in.seekg(0, std::ios::beg);
-//        in.read(&contents[0], contents.size());
-//        in.close();
-//        return(contents);
-//    }
-//    throw(errno);
-}
-
 // Constructor that build the Shader Program from 2 different shaders
 Shader::Shader(const char* vertexFile, const char* fragmentFile)
 {

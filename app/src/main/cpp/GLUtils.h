@@ -2,7 +2,9 @@
 #define _H_GL_UTILS_
 
 #include <GLES3/gl3.h>
+#include <string>
 
+std::string get_file_contents(const char* filename);
 GLuint load_shader(GLenum shaderType, const char *pSource);
 GLuint create_program(const char *pVertexSource, const char *pFragmentSource, GLuint &vertexShader,
                       GLuint &pixelShader);

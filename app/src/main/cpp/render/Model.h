@@ -29,10 +29,29 @@ public:
     BoundingBox originalBb;
     BoundingBox bb;
 
-    // Corresponding Face Parameters
+    // Model Information
+    float originalModelWidth;
+    float originalModelHeight;
+    float modelWidth;
+    float modelHeight;
+
+    // Face Information
     glm::vec3 topHeadCoord;
     float faceWidth;
     float faceHeight;
+    float faceRoll;
+    float facePitch;
+    float faceYaw;
+
+    // Saved Model Parameters
+    glm::vec3 savedTopHeadDist;	// distance of object from top point in head
+    float savedRatioWidth;		// ratio of width between face and object
+    float savedRatioHeight;		// ratio of height between face and object
+    float savedScaleZ;			// scale value for Z coordinate
+    float savedYaw;				// yaw
+    float savedPitch;			// pitch
+    float savedRoll;			// roll
+    int savedIdx;              //vertex index
 
     // All the meshes and transformations
     std::vector<Mesh> meshes;
@@ -46,11 +65,7 @@ public:
     glm::vec3 fixedVertex;						// This fixed vertex point, is a consistent vertex point on the mesh
     glm::vec3 originalPosition;
     glm::vec3 position;
-    float modelWidth;
-    float modelHeight;
-    float roll;
-    float pitch;
-    float yaw;
+    glm::vec3 scale = glm::vec3(0);
 
     // Stores the width and height of the window
     int windowWidth;

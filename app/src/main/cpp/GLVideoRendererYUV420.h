@@ -11,6 +11,9 @@
 #include "face/FaceMesh.h"
 #include "render/Model.h"
 #include "render/ModelObj.h"
+#include "3rdparty/json/json.hpp"
+
+using json = nlohmann::json;
 
 class GLVideoRendererYUV420 : public VideoRenderer
 {
@@ -85,6 +88,21 @@ private:
 	glm::mat4 faceDetectModel;
 
 	std::vector<Texture> hairTextures;
+
+	// Saved model parameters	TODO::INITIALIZE IN CONSTRUCTOR
+	json configsJSON;
+	std::string selected_hair_texture;
+	std::string selected_hair_obj;
+	float saved_ratio_width;
+	float saved_ratio_height;
+	float saved_scale_z;
+	float saved_pitch;
+	float saved_yaw;
+	float saved_roll;
+	float saved_topheadx;
+	float saved_topheady;
+	float saved_topheadz;
+	int saved_front_vert_index;
 };
 
 #endif //_GL_VIDEO_RENDERER_YUV_H_
