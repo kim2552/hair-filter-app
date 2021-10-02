@@ -79,8 +79,7 @@ void GLVideoRendererYUV420::init(ANativeWindow* window, size_t width, size_t hei
     // Initialize texture
     hairTextures.push_back(Texture(hairimage,file_size, "diffuse", 0));
 	glEnable(GL_DEPTH_TEST);
-//	glEnable(GL_BLEND);
-//	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 // GLVideoRenderer render - occurs every new camera image
@@ -93,7 +92,7 @@ void GLVideoRendererYUV420::render()
 	if (!updateTextures() || !useProgram()) return;
 
 	// Detect face(s) and get landmark points
-    faceObjs = faceDetect.getFaceLandmarks(m_pDataY.get(), m_width, m_height);
+    faceObjs = faceDetect.getFaceLandmarks(m_pDataY.get(), m_width, m_height, m_cameraFacing);
 
     // Create a mesh object from the face detect
     for(auto fdMesh : faceDetectMeshes) fdMesh.Delete();
@@ -220,19 +219,19 @@ void GLVideoRendererYUV420::render()
     }
 
 	/*******************************************************/
-
     // Draw all meshes
 	imgMesh->Draw(*shaderProgramImg, *camera, imgModel);
-	maskMesh.Draw(*shaderProgramMask, *camera, maskModel);
 //	for (size_t i = 0; i < faceDetectMeshes.size(); i++)
 //	{
 //		faceDetectMeshes[i].Draw(*shaderProgramPoint, *camera, faceDetectModel);
 //	}
-
+	glEnable(GL_BLEND);
     for (size_t i = 0; i < hairObjs.size(); i++)
     {
         hairObjs[i].model->Draw(*shaderProgramModel, *camera);					// Draw the object
     }
+	maskMesh.Draw(*shaderProgramMask, *camera, maskModel);
+	glDisable(GL_BLEND);
 }
 
 // Reads data from src to dst mirrored

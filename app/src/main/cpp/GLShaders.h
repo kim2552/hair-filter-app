@@ -115,16 +115,12 @@ static const char imageMaskFragmentShader[] =
         float u=texture(s_textureU,texCoord).r;\
         float v=texture(s_textureV,texCoord).r;\
         float mask = texture(transparency,texCoord).r;\
-        if(mask == 0.0)\
-        {\
-            discard;\
-        }\
         u=u-0.5;\
         v=v-0.5;\
         float r=y+1.403*v;\
         float g=y-0.344*u-0.714*v;\
         float b=y+1.770*u;\
-        FragColor=vec4(r,g,b,1.0);\
+        FragColor=vec4(r,g,b,mask);\
     }";
 
 // Model shader.
@@ -164,11 +160,13 @@ static const char modelFragmentShader[] =
     uniform vec3 lightPos;\
     uniform vec3 camPos;\
     void main() {\
+        vec4 result;\
         float ambient = 0.80f;\
         vec3 normal = normalize(Normal);\
         vec3 lightDirection = normalize(vec3(1.0f, 1.0f, 0.0f));\
         float diffuse = max(dot(normal, lightDirection), 0.0f);\
-        FragColor = (texture(diffuse0, texCoord) * (diffuse + ambient)) * lightColor * vec4(color, 1.0f);\
+        result = texture(diffuse0, texCoord);\
+        FragColor = result;\
     }";
 
 // Vertex shader.

@@ -21,7 +21,7 @@ void FaceDetect::init(std::vector<std::string> file_paths)
     dlib::deserialize(file_paths[2]) >> shape_predictor;
 }
 
-std::vector<FaceDetectObj> FaceDetect::getFaceLandmarks(unsigned char* image, int width, int height)
+std::vector<FaceDetectObj> FaceDetect::getFaceLandmarks(unsigned char* image, int width, int height, int camera_facing)
 {
     markers.create(cv::Size(RESIZED_IMAGE_WIDTH, RESIZED_IMAGE_HEIGHT), CV_8UC1);
     markers.setTo(cv::Scalar(0.0));
@@ -34,7 +34,12 @@ std::vector<FaceDetectObj> FaceDetect::getFaceLandmarks(unsigned char* image, in
     // Size(width, height), RESIZED_IMAGE_HEIGHT > RESIZED_IMAGE_WIDTH, so use RESIZED_IMAGE_HEIGHT for width and RESIZED_IMAGE_WIDTH for height
     cv::resize(imageMat, imageMat, cv::Size(RESIZED_IMAGE_HEIGHT, RESIZED_IMAGE_WIDTH), 0, 0, cv::INTER_AREA);
     // We rotate image by 90, width = RESIZED_IMAGE_WIDTH, height = RESIZED_IMAGE_HEIGHT
-    cv::rotate(imageMat, imageMat, cv::ROTATE_90_COUNTERCLOCKWISE);
+    if(camera_facing == 0){ //front_facing
+        cv::rotate(imageMat, imageMat, cv::ROTATE_90_COUNTERCLOCKWISE);
+    }else{
+        cv::rotate(imageMat, imageMat, cv::ROTATE_90_CLOCKWISE);
+    }
+
     cv::equalizeHist(imageMat, imageMat);
 
     std::vector<cv::Rect> faces;
@@ -63,6 +68,7 @@ std::vector<FaceDetectObj> FaceDetect::getFaceLandmarks(unsigned char* image, in
 
         // Face landmark points
         std::vector<cv::Point> pts;
+        std::vector<cv::Point> neck_pts;
         std::vector<cv::Point2d> pose_image_points;
 
         // Key face landmarks
@@ -87,45 +93,37 @@ std::vector<FaceDetectObj> FaceDetect::getFaceLandmarks(unsigned char* image, in
             p.y = shape.part(k).y();
             pts.push_back(p);
             if (k == 8) {
-                std::cout << "bot: " << p.x << "," << p.y << std::endl;
                 cv::Point p_transformed;
                 p_transformed.x = p.x;
                 p_transformed.y = RESIZED_IMAGE_HEIGHT - p.y;
                 obj.botHeadPoint = p_transformed;
             }
             if (k == 71) {
-                std::cout << "top: " << p.x << "," << p.y << std::endl;
                 cv::Point p_transformed;
                 p_transformed.x = p.x;
                 p_transformed.y = RESIZED_IMAGE_HEIGHT - p.y;
                 obj.topHeadPoint = p_transformed;
             }
             if (k == 0) {
-                std::cout << "right: " << p.x << "," << p.y << std::endl;
                 cv::Point p_transformed;
                 p_transformed.x = p.x;
                 p_transformed.y = RESIZED_IMAGE_HEIGHT - p.y;
                 obj.rightHeadPoint = p_transformed;
             }
             if (k == 16) {
-                std::cout << "left: " << p.x << "," << p.y << std::endl;
                 cv::Point p_transformed;
                 p_transformed.x = p.x;
                 p_transformed.y = RESIZED_IMAGE_HEIGHT - p.y;
                 obj.leftHeadPoint = p_transformed;
             }
-//            if (k == 5) {
-//                cv::Point p_transformed;
-//                p_transformed.x = p.x;
-//                p_transformed.y = RESIZED_IMAGE_HEIGHT;
-//                pts.push_back(p_transformed);
-//            }
-//            if (k == 11) {
-//                cv::Point p_transformed;
-//                p_transformed.x = p.x;
-//                p_transformed.y = RESIZED_IMAGE_HEIGHT;
-//                pts.push_back(p_transformed);
-//            }
+            if (k == 5) {
+                neck_pts.push_back(cv::Point(p.x, p.y));
+                neck_pts.push_back(cv::Point(p.x, RESIZED_IMAGE_HEIGHT));
+            }
+            if (k == 11) {
+                neck_pts.push_back(cv::Point(p.x, p.y));
+                neck_pts.push_back(cv::Point(p.x, RESIZED_IMAGE_HEIGHT));
+            }
             if (k == 57) {
                 mouth_central_bottom_corner = p;
             }
@@ -172,10 +170,14 @@ std::vector<FaceDetectObj> FaceDetect::getFaceLandmarks(unsigned char* image, in
 
         // Create contour and draw on mask
         std::vector<cv::Point> contour_hull;
+        std::vector<cv::Point> contour_neck_hull;
         cv::convexHull(pts, contour_hull);
+        cv::convexHull(neck_pts, contour_neck_hull);
         std::vector<std::vector<cv::Point>> hulls;
         hulls.push_back(contour_hull);
+        hulls.push_back(contour_neck_hull);
         cv::drawContours(markers, hulls, 0, cv::Scalar(255),-1);
+        cv::drawContours(markers, hulls, 1, cv::Scalar(255), -1);
 
         // Pose image points
         pose_image_points.push_back(left_brow_left_corner);
@@ -234,8 +236,15 @@ std::vector<FaceDetectObj> FaceDetect::getFaceLandmarks(unsigned char* image, in
         obj.shape = pts;
         faceDetectObjs.push_back(obj);
     }
-    cv::resize(markers, markers, cv::Size(height, width), 0, 0, cv::INTER_NEAREST);
-    cv::rotate(markers, markers, cv::ROTATE_90_CLOCKWISE);
+    cv::GaussianBlur(markers, markers, cv::Size(5, 5), 11.0);
+    cv::resize(markers, markers, cv::Size(height, width), 0, 0, cv::INTER_AREA);
+
+    if(camera_facing == 0){ //front_facing
+        cv::rotate(markers, markers, cv::ROTATE_90_CLOCKWISE);
+    }else{
+        cv::rotate(imageMat, imageMat, cv::ROTATE_90_COUNTERCLOCKWISE);
+    }
+
     face_mask_image = markers.data;
 
     return faceDetectObjs;
@@ -248,9 +257,7 @@ glm::mat4 FaceDetect::genFaceModel(GLuint camera_facing)
 
     glm::mat4 faceDetectModel = glm::mat4(1.0f);
     faceDetectModel = glm::scale(faceDetectModel, glm::vec3(faceMaskScaledLength, faceMaskScaledLength, faceMaskScaledLength));
-    if(camera_facing == 0){
-        faceDetectModel = glm::rotate(faceDetectModel, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));	// Flip the image
-    }
+    faceDetectModel = glm::rotate(faceDetectModel, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));	// Flip the image
     faceDetectModel = glm::translate(faceDetectModel, glm::vec3(-0.375, -0.5, 0.875f));
 
     return faceDetectModel;

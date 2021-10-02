@@ -52,7 +52,7 @@ public:
 
     void init(std::vector<std::string> file_paths);
 
-    std::vector<FaceDetectObj> getFaceLandmarks(unsigned char* image, int width, int height);
+    std::vector<FaceDetectObj> getFaceLandmarks(unsigned char* image, int width, int height, int camera_facing);
 
     glm::mat4 genFaceModel(GLuint camera_facing);
     Mesh genFaceMesh(std::vector<cv::Point>& shape);
