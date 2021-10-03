@@ -121,7 +121,7 @@ void GLVideoRendererYUV420::render()
 		maskModel = glm::rotate(maskModel, 1.57079633f, glm::vec3(0.0f, 0.0f, 1.0f));	// Flip the image 90
 	}
 	maskModel = glm::scale(maskModel, glm::vec3(0.6f, 0.6f, 1.0f));
-	glm::mat4 translation = glm::translate(glm::mat4(1.f), glm::vec3(0.0f, 0.0f, -1.0f));
+	glm::mat4 translation = glm::translate(glm::mat4(1.f), glm::vec3(0.0f, -0.0075f, -1.0f));
 	maskModel = translation * maskModel;
 
 	glm::mat4 testModel = glm::mat4(1.0f);

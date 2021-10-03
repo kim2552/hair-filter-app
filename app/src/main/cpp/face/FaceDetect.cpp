@@ -236,13 +236,13 @@ std::vector<FaceDetectObj> FaceDetect::getFaceLandmarks(unsigned char* image, in
         obj.shape = pts;
         faceDetectObjs.push_back(obj);
     }
-    cv::GaussianBlur(markers, markers, cv::Size(5, 5), 11.0);
+    cv::GaussianBlur(markers, markers, cv::Size(5, 5), 5.0);
     cv::resize(markers, markers, cv::Size(height, width), 0, 0, cv::INTER_AREA);
 
     if(camera_facing == 0){ //front_facing
         cv::rotate(markers, markers, cv::ROTATE_90_CLOCKWISE);
     }else{
-        cv::rotate(imageMat, imageMat, cv::ROTATE_90_COUNTERCLOCKWISE);
+        cv::rotate(markers, markers, cv::ROTATE_90_COUNTERCLOCKWISE);
     }
 
     face_mask_image = markers.data;
