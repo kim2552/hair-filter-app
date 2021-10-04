@@ -78,6 +78,8 @@ private:
 	Shader* shaderProgramPoint;		// Shader program for misc point drawing
 	Shader* shaderProgramModel;
 
+	ModelObj* hairObj;
+
 	Mesh* imgMesh;
 	glm::mat4 imgModel;
     std::vector<Texture> yuvImgTextures;

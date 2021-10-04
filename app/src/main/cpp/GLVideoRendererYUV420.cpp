@@ -161,50 +161,44 @@ void GLVideoRendererYUV420::render()
 
     for (auto fom : faceObjs)
     {
-        // Initialize model object
-        std::string filename = internalFilePaths[3];
-        ModelObj hairBob(filename, hairTextures);
-
-        hairBob.model->savedIdx = saved_front_vert_index;
+        hairObj->model->savedIdx = saved_front_vert_index;
         // Transfer face mesh data to hair object
-        hairBob.model->topHeadCoord = fom.topHeadCoord;
-        hairBob.model->faceWidth = fom.width;
-        hairBob.model->faceHeight = fom.height;
+        hairObj->model->topHeadCoord = fom.topHeadCoord;
+        hairObj->model->faceWidth = fom.width;
+        hairObj->model->faceHeight = fom.height;
 
         // Activate shader for Object and configure the model matrix
         glm::mat4 hairObjectModel = glm::mat4(1.0f);
 
-		// TODO::Store values in json file
         // Calculate the scale of the hair object
-		hairBob.model->savedRatioWidth = saved_ratio_width;				// Width ratio value based on developer preference			// TODO::Store values in json file
-		hairBob.model->savedRatioHeight = saved_ratio_height;			// Height ratio value based on developer preference
-		hairBob.model->savedScaleZ = saved_scale_z;				// Constant Z scale value based on developer preference
-		hairBob.model->originalModelWidth = glm::length(hairBob.model->originalBb.max.x - hairBob.model->originalBb.min.x);
-		hairBob.model->originalModelHeight = glm::length(hairBob.model->originalBb.max.y - hairBob.model->originalBb.min.y);
-		float scaleMultWidth = hairBob.model->savedRatioWidth * hairBob.model->faceWidth / hairBob.model->originalModelWidth;
-		float scaleMultHeight = hairBob.model->savedRatioHeight * hairBob.model->faceHeight / hairBob.model->originalModelHeight;
-		hairObjectModel = glm::scale(hairObjectModel, glm::vec3(scaleMultWidth, scaleMultHeight, hairBob.model->savedScaleZ));
+		hairObj->model->savedRatioWidth = saved_ratio_width;				// Width ratio value based on developer preference
+		hairObj->model->savedRatioHeight = saved_ratio_height;			// Height ratio value based on developer preference
+		hairObj->model->savedScaleZ = saved_scale_z;				// Constant Z scale value based on developer preference
+		hairObj->model->originalModelWidth = glm::length(hairObj->model->originalBb.max.x - hairObj->model->originalBb.min.x);
+		hairObj->model->originalModelHeight = glm::length(hairObj->model->originalBb.max.y - hairObj->model->originalBb.min.y);
+		float scaleMultWidth = hairObj->model->savedRatioWidth * hairObj->model->faceWidth / hairObj->model->originalModelWidth;
+		float scaleMultHeight = hairObj->model->savedRatioHeight * hairObj->model->faceHeight / hairObj->model->originalModelHeight;
+		hairObjectModel = glm::scale(hairObjectModel, glm::vec3(scaleMultWidth, scaleMultHeight, hairObj->model->savedScaleZ));
 
         // Rotate object to match face direction
-        hairBob.model->facePitch = fom.pitch;
-        hairBob.model->faceYaw = fom.yaw;
-        hairBob.model->faceRoll = fom.roll;
-        hairBob.model->savedPitch = saved_pitch;
-        hairBob.model->savedYaw = saved_yaw;
-        hairBob.model->savedRoll = saved_roll;
-		hairObjectModel = glm::rotate(hairObjectModel, glm::radians(hairBob.model->facePitch + hairBob.model->savedPitch), glm::vec3(1.0f, 0.0f, 0.0f));
-		hairObjectModel = glm::rotate(hairObjectModel, glm::radians(hairBob.model->faceYaw + hairBob.model->savedYaw), glm::vec3(0.0f, 1.0f, 0.0f));
-		hairObjectModel = glm::rotate(hairObjectModel, glm::radians(hairBob.model->faceRoll + hairBob.model->savedRoll), glm::vec3(0.0f, 0.0f, 1.0f));
+        hairObj->model->facePitch = fom.pitch;
+        hairObj->model->faceYaw = fom.yaw;
+        hairObj->model->faceRoll = fom.roll;
+        hairObj->model->savedPitch = saved_pitch;
+        hairObj->model->savedYaw = saved_yaw;
+        hairObj->model->savedRoll = saved_roll;
+		hairObjectModel = glm::rotate(hairObjectModel, glm::radians(hairObj->model->facePitch + hairObj->model->savedPitch), glm::vec3(1.0f, 0.0f, 0.0f));
+		hairObjectModel = glm::rotate(hairObjectModel, glm::radians(hairObj->model->faceYaw + hairObj->model->savedYaw), glm::vec3(0.0f, 1.0f, 0.0f));
+		hairObjectModel = glm::rotate(hairObjectModel, glm::radians(hairObj->model->faceRoll + hairObj->model->savedRoll), glm::vec3(0.0f, 0.0f, 1.0f));
 
-        hairBob.model->UpdateModel(hairObjectModel);			// Updates the position and bounding box of the scaled, rotated object
-		// TODO::Save values in a json file and retrieve it
-		hairBob.model->savedTopHeadDist.x = saved_topheadx;		// Value obtained from fixedVertex distance from topHeadCoord	#TODO::Save values in a json file and retrieve it
-		hairBob.model->savedTopHeadDist.y = saved_topheady;		// Value obtained from fixedVertex distance from topHeadCoord
-		hairBob.model->savedTopHeadDist.z = saved_topheadz;		// Value obtained from fixedVertex distance from topHeadCoord
+        hairObj->model->UpdateModel(hairObjectModel);			// Updates the position and bounding box of the scaled, rotated object
+		hairObj->model->savedTopHeadDist.x = saved_topheadx;		// Value obtained from fixedVertex distance from topHeadCoord
+		hairObj->model->savedTopHeadDist.y = saved_topheady;		// Value obtained from fixedVertex distance from topHeadCoord
+		hairObj->model->savedTopHeadDist.z = saved_topheadz;		// Value obtained from fixedVertex distance from topHeadCoord
 
-        float transX = (hairBob.model->savedTopHeadDist.x + hairBob.model->topHeadCoord.x) - hairBob.model->fixedVertex.x;
-        float transY = (hairBob.model->savedTopHeadDist.y + hairBob.model->topHeadCoord.y) - hairBob.model->fixedVertex.y;
-        float transZ = (hairBob.model->savedTopHeadDist.z + hairBob.model->topHeadCoord.z) - hairBob.model->fixedVertex.z;
+        float transX = (hairObj->model->savedTopHeadDist.x + hairObj->model->topHeadCoord.x) - hairObj->model->fixedVertex.x;
+        float transY = (hairObj->model->savedTopHeadDist.y + hairObj->model->topHeadCoord.y) - hairObj->model->fixedVertex.y;
+        float transZ = (hairObj->model->savedTopHeadDist.z + hairObj->model->topHeadCoord.z) - hairObj->model->fixedVertex.z;
 
         glm::mat4 translation = glm::translate(glm::mat4(1.f), glm::vec3(transX, transY, transZ));
         hairObjectModel = translation * hairObjectModel;
@@ -214,8 +208,8 @@ void GLVideoRendererYUV420::render()
 		glm::vec3 lightPos = glm::vec3(0.5f, 0.5f, 0.5f);
         glUniform4f(glGetUniformLocation(shaderProgramModel->ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
         glUniform3f(glGetUniformLocation(shaderProgramModel->ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
-        hairBob.model->UpdateModel(hairObjectModel);																// Update object model
-        hairObjs.push_back(hairBob);
+        hairObj->model->UpdateModel(hairObjectModel);																// Update object model
+        hairObjs.push_back(*hairObj);
     }
 
 	/*******************************************************/
@@ -500,6 +494,10 @@ GLuint GLVideoRendererYUV420::useProgram()
 
 		// Configure face detection model matrix
 		faceDetectModel = faceDetect.genFaceModel(m_cameraFacing);
+
+        // Initialize model object
+        std::string filename = internalFilePaths[3];
+        hairObj = new ModelObj(filename, hairTextures);
 
 		isProgramChanged = false;
 	}
