@@ -2,7 +2,9 @@ package com.example.camera_hair_app.camera_activity;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.util.Log;
@@ -14,6 +16,9 @@ import androidx.core.app.ActivityCompat;
 import com.example.camera_hair_app.R;
 import com.example.camera_hair_app.camera_render.GLVideoRenderer;
 import com.example.camera_hair_app.libs.AspectFrameLayout;
+
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 public class GLViewActivity extends BaseViewActivity implements ActivityCompat.OnRequestPermissionsResultCallback {
 
@@ -43,6 +48,30 @@ public class GLViewActivity extends BaseViewActivity implements ActivityCompat.O
         AspectFrameLayout layout = (AspectFrameLayout) findViewById(R.id.preview);
         layout.setAspectRatio((double) 3/4);
         layout.addView(mPreview);
+
+        Button btnCaptureCamera = (Button) findViewById(R.id.capture_camera);
+        btnCaptureCamera.setOnClickListener(v -> {
+            try {
+                // Get bitmap
+                Bitmap snapshot = mVideoRenderer.getSnapshotBitmap();
+
+                // Write file
+                String filename = "bitmap.png";
+                FileOutputStream stream = this.openFileOutput(filename, Context.MODE_PRIVATE);
+                snapshot.compress(Bitmap.CompressFormat.PNG, 100, stream);
+
+                // Cleanup
+                stream.close();
+                snapshot.recycle();
+
+                // Pop intent
+                Intent intent = new Intent(this, ImagePreviewActivity.class);
+                intent.putExtra("image", filename);
+                startActivity(intent);
+            } catch (InterruptedException | IOException e) {
+                e.printStackTrace();
+            }
+        });
 
         Button btnFlipCamera = (Button) findViewById(R.id.flip_camera);
         btnFlipCamera.setOnClickListener(v -> {
