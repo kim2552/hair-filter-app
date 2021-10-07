@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">camera-hair-app</string>
+    <string name="app_name">HairLive</string>
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
     <string name="capture_button">Capture</string>
