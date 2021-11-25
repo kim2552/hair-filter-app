@@ -61,23 +61,6 @@ void GLVideoRendererYUV420::init(ANativeWindow* window, size_t width, size_t hei
     m_backingWidth = width;
     m_backingHeight = height;
 
-    const char* filename = (const char*)NULL;
-    unsigned char* hairimage;
-    int file_size;
-    AAssetDir* assetDirImg = AAssetManager_openDir(assetManager, "hair");
-    while ((filename = AAssetDir_getNextFileName(assetDirImg)) != NULL) {
-        if(strcmp(filename, "blonde.png") == 0){
-            AAsset* asset = AAssetManager_open(assetManager, "hair/blonde.png", AASSET_MODE_UNKNOWN);
-            file_size = AAsset_getLength(asset);
-            hairimage = (unsigned char*) malloc (sizeof(unsigned char)*file_size);
-            AAsset_read(asset,hairimage,file_size);
-            AAsset_close(asset);
-        }
-    }
-    AAssetDir_close(assetDirImg);
-
-    // Initialize texture
-    hairTextures.push_back(Texture(hairimage,file_size, "diffuse", 0));
 	glEnable(GL_DEPTH_TEST);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
@@ -479,6 +462,7 @@ GLuint GLVideoRendererYUV420::useProgram()
 		saved_topheady = configsJSON["hairs"][hair_obj]["transformations"]["topheady"];
 		saved_topheadz = configsJSON["hairs"][hair_obj]["transformations"]["topheadz"];
 		saved_front_vert_index = configsJSON["hairs"][hair_obj]["transformations"]["front_vert_index"];
+		std::string texture_image = configsJSON["hairs"][hair_obj]["texture"];
 
 		// Configure the camera matrix
 		camera = new Camera(m_backingWidth, m_backingHeight, glm::vec3(0.0,0.0,2.415));
@@ -495,9 +479,23 @@ GLuint GLVideoRendererYUV420::useProgram()
 		// Configure face detection model matrix
 		faceDetectModel = faceDetect.genFaceModel(m_cameraFacing);
 
+        unsigned char* hairimage;
+        int file_size;
+        AAssetDir* assetDirImg = AAssetManager_openDir(assetManager, "hair");
+        AAsset* asset = AAssetManager_open(assetManager, texture_image.c_str(), AASSET_MODE_UNKNOWN);
+        file_size = AAsset_getLength(asset);
+        hairimage = (unsigned char*) malloc (sizeof(unsigned char)*file_size);
+        AAsset_read(asset,hairimage,file_size);
+        AAsset_close(asset);
+        AAssetDir_close(assetDirImg);
+
+        // Initialize texture
+        hairTextures.clear();
+        hairTextures.push_back(Texture(hairimage,file_size, "diffuse", 0));
+
         // Initialize model object
-        std::string filename = internalFilePaths[3];
-        hairObj = new ModelObj(filename, hairTextures);
+        std::string model_filename = internalFilePaths[3];
+        hairObj = new ModelObj(model_filename, hairTextures);
 
 		isProgramChanged = false;
 	}

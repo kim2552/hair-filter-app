@@ -92,8 +92,8 @@ public class GLViewActivity extends BaseViewActivity implements ActivityCompat.O
         btnFilterRight.setOnClickListener(v -> {
             mParams = mVideoRenderer.getVideoParamaters();
             mParams += 1;
-            if(mParams > 1){
-                mParams = 1;
+            if(mParams > 2){
+                mParams = 2;
             }
             mVideoRenderer.setVideoParameters(mParams, appContext);
         });

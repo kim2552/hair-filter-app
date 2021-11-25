@@ -165,7 +165,7 @@ static const char modelFragmentShader[] =
         vec3 normal = normalize(Normal);\
         vec3 lightDirection = normalize(vec3(1.0f, 1.0f, 0.0f));\
         float diffuse = max(dot(normal, lightDirection), 0.0f);\
-        result = texture(diffuse0, texCoord);\
+        result = (texture(diffuse0, texCoord) * (diffuse+ambient));\
         FragColor = result;\
     }";
 

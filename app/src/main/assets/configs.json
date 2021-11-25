@@ -1,6 +1,7 @@
 {	"hairs" :{
 		"0" :{
-			"path" : "hair/hair_bob.obj",
+			"path" : "hair/hair_girl_short_bob_2.obj",
+			"texture": "textures/white.png",
 			"transformations" : {
 				"ratio_width": 1.745784,
 				"ratio_height": 1.361974,
@@ -14,18 +15,34 @@
 				"front_vert_index": 174}
 		},
 		"1" : {
-			"path" : "hair/ponytail4.obj",
+			"path" : "hair/hair_girl_short_bob_1.obj",
+			"texture": "textures/white.png",
 			"transformations" : {
-				"ratio_width": 1.252658,
-				"ratio_height": 1.673405,
-				"scale_z": 0.130800,
-				"pitch": -200.303024,
-				"yaw": -8.799997,
-				"roll": 3.999998,
-				"topheadx": 0.011439,
-				"topheady": 0.023838,
-				"topheadz": -1.071259,
-				"front_vert_index": 139}
+				"ratio_width": 1.585560,
+				"ratio_height": 1.488445,
+				"scale_z": 0.005836,
+				"pitch": -173.201370,
+				"yaw": 14.700022,
+				"roll": 0.200000,
+				"topheadx": 0.041439,
+				"topheady": 0.113838,
+				"topheadz": -1.241259,
+				"front_vert_index": 52325}
+		},
+		"2" :{
+			"path" : "hair/hair_boy_short_bob_1.obj",
+			"texture": "textures/hair_boy_short_bob_1.png",
+			"transformations" : {
+				"ratio_width": 1.118369,
+				"ratio_height": 1.166074,
+				"scale_z": 1.741685,
+				"pitch": 190.200623,
+				"yaw": 7.299995,
+				"roll": -1.700000,
+				"topheadx": 0.017299,
+				"topheady": 0.062821,
+				"topheadz": -1.160658,
+				"front_vert_index": 15844}
 		}
 	},
 	"textures" :{

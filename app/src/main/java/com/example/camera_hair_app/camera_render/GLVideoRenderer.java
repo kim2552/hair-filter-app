@@ -38,8 +38,7 @@ public class GLVideoRenderer extends VideoRenderer implements GLSurfaceView.Rend
     File mLandmarkFile;
     File mConfigFile;
     File mHairObjFile;
-    File mHairTextFile;
-    String[] internalFilePaths = new String[5];
+    String[] internalFilePaths = new String[4];
 
     JSONParser parser = new JSONParser();
     Object jsonObj;
@@ -58,21 +57,16 @@ public class GLVideoRenderer extends VideoRenderer implements GLSurfaceView.Rend
             JSONObject selectedHairObj = (JSONObject)((JSONObject)configsObject.get("hairs")).get("0");
             String selectedHairObjPath = (String) selectedHairObj.get("path");
 
-            JSONObject selectedHairText = (JSONObject)((JSONObject)configsObject.get("textures")).get("0");
-            String selectedHairTextPath = (String)selectedHairText.get("path");
-
             File dir = context.getDir("data", context.MODE_PRIVATE);
             mConfigFile = new File(dir,"configs.json");
             mCascadeFile = new File(dir, "face_frontal.xml");
             mLandmarkFile = new File(dir, "face_landmark.dat");
             mHairObjFile = new File(dir, "hair.obj");
-            mHairTextFile = new File(dir, "hair_texture.png");
 
             createInternalFiles(context, mConfigFile, "configs.json", 0);
             createInternalFiles(context, mCascadeFile, "data/lbpcascade_frontalface_improved.xml", 1);
             createInternalFiles(context, mLandmarkFile, "data/shape_predictor_81_face_landmarks.dat", 2);
             createInternalFiles(context, mHairObjFile, selectedHairObjPath, 3);
-            createInternalFiles(context, mHairTextFile, selectedHairTextPath, 4);
 
             //Pass AssetManager to JNI
             setAssetManager(context.getResources().getAssets());
@@ -109,11 +103,7 @@ public class GLVideoRenderer extends VideoRenderer implements GLSurfaceView.Rend
         JSONObject selectedHairObj = (JSONObject)((JSONObject)configsObject.get("hairs")).get(hairObjParams);
         String selectedHairObjPath = (String) selectedHairObj.get("path");
 
-        JSONObject selectedHairText = (JSONObject)((JSONObject)configsObject.get("textures")).get("0");
-        String selectedHairTextPath = (String)selectedHairText.get("path");
-
         createInternalFiles(context, mHairObjFile, selectedHairObjPath, 3);
-        createInternalFiles(context, mHairTextFile, selectedHairTextPath, 4);
 
         setParameters(params);
     }
