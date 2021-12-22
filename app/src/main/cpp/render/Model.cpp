@@ -22,7 +22,7 @@ void Model::UpdateModel(glm::mat4 model)
 {
     modelMat = model;			// Update the modelMat
 
-    glm::vec4 vertexPoint = glm::vec4(meshes[0].vertices[savedIdx].position, 1.0f);
+    glm::vec4 vertexPoint = glm::vec4(meshes[0].vertices[front_head_vertex_index].position, 1.0f);
     fixedVertex = modelMat * vertexPoint;
 
     glm::vec4 vmin = modelMat * glm::vec4(originalBb.min,1.0f);

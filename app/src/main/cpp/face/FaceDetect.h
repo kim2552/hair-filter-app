@@ -32,17 +32,18 @@
 #include "Log.h"
 
 struct FaceDetectObj {
-    std::vector<cv::Point> shape;
-    cv::Point topHeadPoint;
-    cv::Point botHeadPoint;
-    cv::Point rightHeadPoint;
-    cv::Point leftHeadPoint;
-    glm::vec3 topHeadCoord;
-    float width;
-    float height;
-    float yaw;
-    float pitch;
-    float roll;
+	std::vector<cv::Point> landmarks;
+	cv::Point topPoint;					// Top point of the face
+	cv::Point botPoint;					// Bottom point of the face
+	cv::Point rightPoint;				// Right point of the face
+	cv::Point leftPoint;				// Left point of the face
+	glm::vec3 topCoord;					// Co-ordinate points of the top of the head
+	float width;
+	float height;
+	float yaw;
+	float pitch;
+	float roll;
+	bool detected = false;
 };
 
 class FaceDetect
@@ -52,26 +53,14 @@ public:
 
     void init(std::vector<std::string> file_paths);
 
-    std::vector<FaceDetectObj> getFaceLandmarks(unsigned char* image, int width, int height, int camera_facing);
-
-	void setResizedWidth(const int width);
-	int resizedWidth() const;
-	bool isFaceFound() const;
-	cv::Rect face() const;
-	cv::Point facePosition() const;
-	void setTemplateMatchingMaxDuration(const double s);
-	double templateMatchingMaxDuration() const;
-
-    glm::mat4 genFaceModel(GLuint camera_facing);
-    Mesh genFaceMesh(std::vector<cv::Point>& shape);
+    FaceDetectObj getFaceObject(unsigned char* image, int width, int height, int camera_facing);
 
 	// face mask
-	cv::Mat markers;
-	unsigned char* face_mask_image;
+	cv::Mat m_mask_image_mat;
+	unsigned char* m_face_mask_image;
 
-    std::vector<Texture> fdTextures;    // empty list
     // Vertices coordinates for face
-    std::vector<GLuint> fdIndices
+    std::vector<GLuint> m_indices
             {
                     0, 17, 36,
                     0, 1, 36,

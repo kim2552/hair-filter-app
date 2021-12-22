@@ -63,6 +63,12 @@ target_link_libraries(
 add_library(include INTERFACE)
 target_include_directories(include INTERFACE ${SRC_DIR}/include)
 
+add_library(config INTERFACE)
+target_include_directories(include INTERFACE ${SRC_DIR}/config)
+
+add_library(objects INTERFACE)
+target_include_directories(include INTERFACE ${SRC_DIR}/objects)
+
 add_library(render INTERFACE)
 target_include_directories(render INTERFACE ${SRC_DIR}/render)
 
@@ -93,6 +99,8 @@ add_library( # Sets the name of the library.
         ${SRC_DIR}/GLVideoRendererYUV420.cpp
         ${SRC_DIR}/GLVideoRendererYUV420Filter.cpp
 
+        ${SRC_DIR}/config/AppConfig.cpp
+
         ${SRC_DIR}/render/EBO.cpp
         ${SRC_DIR}/render/VBO.cpp
         ${SRC_DIR}/render/VAO.cpp
@@ -102,6 +110,10 @@ add_library( # Sets the name of the library.
         ${SRC_DIR}/render/Mesh.cpp
         ${SRC_DIR}/render/Model.cpp
         ${SRC_DIR}/render/ModelObj.cpp
+
+        ${SRC_DIR}/objects/CameraImage.cpp
+        ${SRC_DIR}/objects/FaceMask.cpp
+        ${SRC_DIR}/objects/HairObject.cpp
 
         ${SRC_DIR}/face/FaceDetect.cpp
         ${SRC_DIR}/face/FaceMesh.cpp)
@@ -150,6 +162,8 @@ target_link_libraries( # Specifies the target library.
         ${log-lib}
         ${GLESv3-lib}
         include
+        config
+        objects
         render
         face
         eos

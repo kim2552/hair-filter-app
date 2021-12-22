@@ -13,6 +13,12 @@
 #include "render/ModelObj.h"
 #include "3rdparty/json/json.hpp"
 
+#include "config/AppConfig.h"
+
+#include "objects/CameraImage.h"
+#include "objects/FaceMask.h"
+#include "objects/HairObject.h"
+
 using json = nlohmann::json;
 
 class GLVideoRendererYUV420 : public VideoRenderer
@@ -73,6 +79,13 @@ private:
 
 	Camera* camera;
 
+	AppConfig config;
+
+	// Image objects
+	CameraImage m_cameraImage;
+	FaceMask m_faceMask;
+	HairObject m_hairObject;
+
 	Shader* shaderProgramImg;		// Shader program for image drawing
 	Shader* shaderProgramMask;		// Shader program for image mask
 	Shader* shaderProgramPoint;		// Shader program for misc point drawing
@@ -85,7 +98,7 @@ private:
     std::vector<Texture> yuvImgTextures;
 
 	FaceDetect faceDetect;
-	std::vector<FaceDetectObj> faceObjs;
+	FaceDetectObj faceDetectObj;
 	std::vector<Mesh> faceDetectMeshes;
 	glm::mat4 faceDetectModel;
 
