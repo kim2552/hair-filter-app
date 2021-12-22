@@ -61,6 +61,10 @@ void GLVideoRendererYUV420::init(ANativeWindow* window, size_t width, size_t hei
     m_backingWidth = width;
     m_backingHeight = height;
 
+    // Configure the camera matrix
+    camera = new Camera(m_backingWidth, m_backingHeight, glm::vec3(0.0,0.0,2.415));
+    camera->updateMatrix(45.0f, 0.1f, 100.0f);
+
 	glEnable(GL_DEPTH_TEST);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
@@ -83,17 +87,15 @@ void GLVideoRendererYUV420::render()
 		m_faceMask.loadTextures(&yuvImgTextures);
 		m_faceMask.loadFaceDetectObj(faceDetectObj, &faceDetect);
     }
-
-	/*******************************************************/
-
+//
+//	/*******************************************************/
+//
 	m_cameraImage.loadTextures(&yuvImgTextures);
 	m_cameraImage.initCameraImage();
-
-	/*******************************************************/
-
+//
+//	/*******************************************************/
+//
 	if (faceDetectObj.detected) {
-		m_hairObject.loadTextures(&hairTextures);
-		m_hairObject.initHairObject(&config);
 		m_hairObject.updateHairObject(&m_faceMask);
 	}
 
@@ -350,10 +352,6 @@ GLuint GLVideoRendererYUV420::useProgram()
 		config.LoadConfig(internalFilePaths[0],m_params);
 		config.params.hair_obj = internalFilePaths[3];
 
-		// Configure the camera matrix
-		camera = new Camera(m_backingWidth, m_backingHeight, glm::vec3(0.0,0.0,2.415));
-		camera->updateMatrix(45.0f, 0.1f, 100.0f);
-
 		// Initialize image objects
 		m_cameraImage.loadImageAspectRatio(float(m_width)/float(m_height));
 		m_cameraImage.loadShaders(shaderProgramImg);
@@ -379,8 +377,12 @@ GLuint GLVideoRendererYUV420::useProgram()
         hairTextures.push_back(Texture(hairimage,file_size, "diffuse", 0));
         m_hairObject.loadTextures(&hairTextures);
 
+        // Initialize hair object
+		m_hairObject.loadTextures(&hairTextures);
+		m_hairObject.initHairObject(&config);
+
 		isProgramChanged = false;
 	}
+    return 1;
 
-	return 1;
 }
