@@ -54,17 +54,17 @@ void FaceMask::loadFaceDetectObj(FaceDetectObj faceDetectObj, FaceDetect* faceDe
 
 	glm::mat4 testModel = glm::mat4(1.0f);
 	testModel = glm::scale(testModel, glm::vec3(0.6f, 0.6f, 1.0f));
-	glm::mat4 trans = glm::translate(glm::mat4(1.f), glm::vec3(0.0f, 0.0f, -1.0f));
-	testModel = trans * testModel;
+//	glm::mat4 trans = glm::translate(glm::mat4(1.f), glm::vec3(0.0f, 0.0f, -1.0f));
+//	testModel = trans * testModel;
 
 	cv::Point th = m_faceDetectObj.topPoint;
 	cv::Point bh = m_faceDetectObj.botPoint;
 	cv::Point rc = m_faceDetectObj.rightPoint;
 	cv::Point lc = m_faceDetectObj.leftPoint;
-	glm::vec4 vth(glm::vec3(0.75 - (th.x * 0.75 / (float)RESIZED_IMAGE_WIDTH * 2), 1 - (th.y / (float)RESIZED_IMAGE_HEIGHT * 2), 1.0f), 1.0f);
-	glm::vec4 vbh(glm::vec3(0.75 - (bh.x * 0.75 / (float)RESIZED_IMAGE_WIDTH * 2), 1 - (bh.y / (float)RESIZED_IMAGE_HEIGHT * 2), 1.0f), 1.0f);
-	glm::vec4 vrc(glm::vec3(0.75 - (rc.x * 0.75 / (float)RESIZED_IMAGE_WIDTH * 2), 1 - (rc.y / (float)RESIZED_IMAGE_HEIGHT * 2), 1.0f), 1.0f);
-	glm::vec4 vlc(glm::vec3(0.75 - (lc.x * 0.75 / (float)RESIZED_IMAGE_WIDTH * 2), 1 - (lc.y / (float)RESIZED_IMAGE_HEIGHT * 2), 1.0f), 1.0f);
+	glm::vec4 vth(glm::vec3(0.75 - (th.x * 0.75 / (float)RESIZED_IMAGE_WIDTH * 2), 1 - (th.y / (float)RESIZED_IMAGE_HEIGHT * 2), -1.0f), 1.0f);
+	glm::vec4 vbh(glm::vec3(0.75 - (bh.x * 0.75 / (float)RESIZED_IMAGE_WIDTH * 2), 1 - (bh.y / (float)RESIZED_IMAGE_HEIGHT * 2), -1.0f), 1.0f);
+	glm::vec4 vrc(glm::vec3(0.75 - (rc.x * 0.75 / (float)RESIZED_IMAGE_WIDTH * 2), 1 - (rc.y / (float)RESIZED_IMAGE_HEIGHT * 2), -1.0f), 1.0f);
+	glm::vec4 vlc(glm::vec3(0.75 - (lc.x * 0.75 / (float)RESIZED_IMAGE_WIDTH * 2), 1 - (lc.y / (float)RESIZED_IMAGE_HEIGHT * 2), -1.0f), 1.0f);
 	vth = testModel * vth;
 	vbh = testModel * vbh;
 	vrc = testModel * vrc;

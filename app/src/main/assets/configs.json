@@ -3,33 +3,35 @@
 			"name": "long_bob_hair",
 			"path" : "hair/female_hair_4.obj",
 			"texture": "textures/female_hair_4.png",
-			"transformations" : {
-				"ratio_width": 3.604387,
-				"ratio_height": 13.139425,
-				"ratio_length": 2.276717,
+			"transformations": {
+				"ratio_width": 3.976263,
+				"ratio_height": 14.172887,
+				"ratio_length": 2.452176,
 				"pitch": 0.000000,
 				"yaw": 180.000000,
 				"roll": 180.000000,
 				"topheadx": -0.050000,
-				"topheady": 0.079999,
-				"topheadz": -1.129999,
-				"front_vert_index": 0}
+				"topheady": 0.049999,
+				"topheadz": -0.080000,
+				"front_vert_index": 0
+			}
 		},
 		"1" :{
 			"name": "long_bob_hair",
 			"path" : "hair/female_hair_3.obj",
 			"texture": "textures/female_hair_3.png",
-			"transformations" : {
-				"ratio_width": 8.185134,
-				"ratio_height": 7.882994,
-				"ratio_length": 2.283571,
+			"transformations": {
+				"ratio_width": 9.563053,
+				"ratio_height": 9.379260,
+				"ratio_length": 2.840596,
 				"pitch": 0.000000,
 				"yaw": 180.000000,
 				"roll": -180.000000,
-				"topheadx": 0.000000,
-				"topheady": -0.140001,
-				"topheadz": -1.069999,
-				"front_vert_index": 4665}
+				"topheadx": -0.030000,
+				"topheady": -0.130001,
+				"topheadz": -0.149999,
+				"front_vert_index": 4665
+			}
 		},
 		"2" :{
 			"name": "long_bob_hair",
@@ -44,7 +46,7 @@
 				"roll": -180.000000,
 				"topheadx": 0.000000,
 				"topheady": -0.080000,
-				"topheadz": -1.109999,
+				"topheadz": -0.109999,
 				"front_vert_index": 1500}
 		},
 		"3" :{
@@ -60,7 +62,7 @@
 				"roll": -180.700043,
 				"topheadx": 0.030000,
 				"topheady": 0.030000,
-				"topheadz": -1.109999,
+				"topheadz": -0.109999,
 				"front_vert_index": 2463}
 		},
 		"4" :{
@@ -76,24 +78,25 @@
 				"roll": -180.000000,
 				"topheadx": -0.010000,
 				"topheady": 0.120000,
-				"topheadz": -1.139999,
+				"topheadz": -0.139999,
 				"front_vert_index": 493}
 		},
 		"5" :{
 			"name": "long_bob_hair",
 			"path" : "hair/female_hair_6.obj",
 			"texture": "textures/female_hair_6.png",
-			"transformations" : {
-				"ratio_width": 14.654257,
-				"ratio_height": 8.714286,
-				"ratio_length": 1.560014,
+			"transformations": {
+				"ratio_width": 7.398762,
+				"ratio_height": 9.245533,
+				"ratio_length": 1.449591,
 				"pitch": 0.000000,
 				"yaw": 180.000000,
 				"roll": -180.000000,
-				"topheadx": -0.040000,
-				"topheady": 0.000000,
-				"topheadz": -1.109999,
-				"front_vert_index": 2415}
+				"topheadx": 0.040000,
+				"topheady": 0.060000,
+				"topheadz": -0.149999,
+				"front_vert_index": 3990
+			}
 		},
 		"6" :{
 			"name": "long_bob_hair",
@@ -108,7 +111,7 @@
 				"roll": -179.799988,
 				"topheadx": 0.000000,
 				"topheady": -0.140000,
-				"topheadz": -0.989999,
+				"topheadz": -0.010010,
 				"front_vert_index": 3070}
 		},
 		"7" :{
@@ -124,7 +127,7 @@
 				"roll": -179.599976,
 				"topheadx": -0.000000,
 				"topheady": 0.140000,
-				"topheadz": -1.239999,
+				"topheadz": -0.239999,
 				"front_vert_index": 6900}
 		}
 	}

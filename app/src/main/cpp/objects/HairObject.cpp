@@ -57,9 +57,10 @@ void HairObject::updateHairObject(FaceMask* faceMask, bool modify_size)
 	if (!modify_size) {
 		// Transfer face mesh data to hair object
 		m_hairModelObj->model->topHeadCoord = faceMask->m_faceDetectObj.topCoord;
-		m_hairModelObj->model->faceWidth = faceMask->m_faceDetectObj.width;
-		m_hairModelObj->model->faceHeight = faceMask->m_faceDetectObj.height;
-		m_hairModelObj->model->faceLength = faceMask->m_faceDetectObj.height * 7.0f / 8.0f;
+        m_hairModelObj->model->faceWidth = faceMask->m_faceDetectObj.width / sin(glm::radians(90 - abs(faceMask->m_faceDetectObj.yaw)));
+        m_hairModelObj->model->faceHeight = faceMask->m_faceDetectObj.height / sin(glm::radians(90 - abs(faceMask->m_faceDetectObj.pitch)));
+        m_hairModelObj->model->faceLength = m_hairModelObj->model->faceHeight * 7.0f / 8.0f;
+        m_hairModelObj->model->faceLength = m_hairModelObj->model->faceLength / sin(glm::radians(90 - abs(faceMask->m_faceDetectObj.roll)));
 
 		// Rotate object to match face direction
 		m_hairModelObj->model->facePitch = faceMask->m_faceDetectObj.pitch;
