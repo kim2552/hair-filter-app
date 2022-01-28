@@ -22,7 +22,7 @@ public abstract class VideoRenderer {
     protected native void draw(byte[] data, int width, int height, int rotation, int camera_facing);
     protected native void setAssetManager(AssetManager mgr);
     protected native void setInternalFiles(String[] filepaths);
-    protected native void setParameters(int params);
+    protected native void setParameters(String[] params);
     protected native int getParameters();
 
     static {

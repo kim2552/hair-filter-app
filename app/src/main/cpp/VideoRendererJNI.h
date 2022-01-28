@@ -16,6 +16,7 @@ extern "C" {
 
 static AAssetManager* asset_manager;
 std::vector<std::string> internal_file_paths;
+std::vector<std::string> internal_obj_params;
 const char* cascade_file_path;
 
 JCMCPRV(void, create)(JNIEnv * env, jobject obj, jint type);
@@ -25,7 +26,7 @@ JCMCPRV(void, render)(JNIEnv * env, jobject obj);
 JCMCPRV(void, draw)(JNIEnv * env, jobject obj, jbyteArray data, jint width, jint height, jint rotation, jint camera_facing);
 JCMCPRV(void, setAssetManager)(JNIEnv * env, jobject obj, jobject asset_manager);
 JCMCPRV(void, setInternalFiles)(JNIEnv * env, jobject obj, jobjectArray filepaths);
-JCMCPRV(void, setParameters)(JNIEnv * env, jobject obj, jint params);
+JCMCPRV(void, setParameters)(JNIEnv * env, jobject obj, jobjectArray params);
 JCMCPRV(jint, getParameters)(JNIEnv * env, jobject obj);
 
 #ifdef __cplusplus

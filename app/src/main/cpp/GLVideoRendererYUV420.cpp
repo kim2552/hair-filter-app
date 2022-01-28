@@ -257,12 +257,12 @@ void GLVideoRendererYUV420::setInternalFilePaths(std::vector<std::string> file_p
     faceDetect.init(internalFilePaths);
 }
 
-void GLVideoRendererYUV420::setParameters(uint32_t params)
+void GLVideoRendererYUV420::setParameters(std::vector<std::string> params)
 {
 	m_params = params;
 }
 
-uint32_t GLVideoRendererYUV420::getParameters()
+std::vector<std::string> GLVideoRendererYUV420::getParameters()
 {
     return m_params;
 }
@@ -349,7 +349,7 @@ GLuint GLVideoRendererYUV420::useProgram()
 	if (isProgramChanged)
     {
 		// Load configs
-		config.LoadConfig(internalFilePaths[0],m_params);
+		config.LoadConfig(internalFilePaths[0],m_params[0]);
 		config.params.hair_obj = internalFilePaths[3];
 
 		// Initialize image objects
@@ -379,7 +379,14 @@ GLuint GLVideoRendererYUV420::useProgram()
 
         // Initialize hair object
 		m_hairObject.loadTextures(&hairTextures);
-		m_hairObject.initHairObject(&config);
+		glm::vec3 hair_color;
+
+		float r = float(std::stoul(m_params[1].substr(2,2), nullptr, 16))/255.0;
+		float g = float(std::stoul(m_params[1].substr(4,2), nullptr, 16))/255.0;
+		float b = float(std::stoul(m_params[1].substr(6,2), nullptr, 16))/255.0;
+		hair_color = glm::vec3(r,g,b);
+
+		m_hairObject.initHairObject(&config, hair_color);
 
 		isProgramChanged = false;
 	}

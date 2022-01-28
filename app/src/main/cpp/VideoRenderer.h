@@ -35,8 +35,8 @@ public:
 	virtual void setAssetManager(AAssetManager* mgr) = 0;
 	virtual AAssetManager* getAssetManager() = 0;
 	virtual void setInternalFilePaths(std::vector<std::string> file_paths) = 0;
-	virtual void setParameters(uint32_t params) = 0;
-	virtual uint32_t getParameters() = 0;
+	virtual void setParameters(std::vector<std::string> params) = 0;
+	virtual std::vector<std::string> getParameters() = 0;
 	virtual bool createTextures() = 0;
 	virtual bool updateTextures() = 0;
 	virtual void deleteTextures() = 0;
@@ -51,7 +51,7 @@ protected:
     AAssetManager* assetManager;
     std::vector<std::string> internalFilePaths;
 
-	uint32_t m_params;
+	std::vector<std::string> m_params;
 	int m_rotation;
 
 	bool isDirty;

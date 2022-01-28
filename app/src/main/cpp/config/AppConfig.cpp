@@ -1,11 +1,11 @@
 #include "AppConfig.h"
 
-void AppConfig::LoadConfig(std::string file_path, uint32_t selected_params)
+void AppConfig::LoadConfig(std::string file_path, std::string selected_params)
 {
 	std::string configstext = get_file_contents(file_path.c_str());
 	json configsJSON = json::parse(configstext);
 
-	std::string hair_obj = std::to_string(selected_params);
+	std::string hair_obj = selected_params;
 
 	params.hair_obj = std::string(configsJSON["hairs"][hair_obj]["path"]);
 	params.hair_texture = std::string(configsJSON["hairs"][hair_obj]["texture"]);

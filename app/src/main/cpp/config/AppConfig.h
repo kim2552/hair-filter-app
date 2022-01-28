@@ -32,7 +32,7 @@ struct Parameters
 class AppConfig
 {
 public:
-	void LoadConfig(std::string file_path, uint32_t params);
+	void LoadConfig(std::string file_path, std::string params);
 	Parameters params;
 };
 

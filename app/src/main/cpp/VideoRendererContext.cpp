@@ -46,14 +46,14 @@ void VideoRendererContext::setInternalFilePaths(std::vector<std::string> file_pa
     m_pVideoRenderer->setInternalFilePaths(m_internalFilePaths);
 }
 
-void VideoRendererContext::setParameters(uint32_t params)
+void VideoRendererContext::setParameters(std::vector<std::string> params)
 {
     m_pVideoRenderer->setParameters(params);
 }
 
 uint32_t VideoRendererContext::getParameters()
 {
-    return m_pVideoRenderer->getParameters();
+    return 0;   //TODO::Not implemented
 }
 
 void VideoRendererContext::createContext(JNIEnv *env, jobject obj, jint type)

@@ -23,29 +23,23 @@ GLVideoRendererYUV420Filter::~GLVideoRendererYUV420Filter()
 
 }
 
-void GLVideoRendererYUV420Filter::setParameters(uint32_t params)
+void GLVideoRendererYUV420Filter::setParameters(std::vector<std::string> params)
 {
     GLVideoRendererYUV420::setParameters(params);
-    m_filter = params & 0x0000000F;
+    isProgramChanged = true;
 }
 
-uint32_t GLVideoRendererYUV420Filter::getParameters()
+std::vector<std::string> GLVideoRendererYUV420Filter::getParameters()
 {
     return m_params;
 }
 
 void GLVideoRendererYUV420Filter::render()
 {
-    if (m_filter != m_prevFilter)
+    if (isProgramChanged)
     {
-        m_prevFilter = m_filter;
-
-        if (m_filter >= 0 && m_filter < m_fragmentShader.size())
-        {
-            isProgramChanged = true;
-            delete_program(m_program);
-            createPrograms();
-        }
+        delete_program(m_program);
+        createPrograms();
     }
 
     GLVideoRendererYUV420::render();

@@ -24,7 +24,7 @@ public:
 	void setAssetManager(AAssetManager* mgr);
 	AAssetManager* getAssetManager();
 	void setInternalFilePaths(std::vector<std::string> file_paths);
-	void setParameters(uint32_t params);
+	void setParameters(std::vector<std::string> params);
 	uint32_t getParameters();
 
 	static void createContext(JNIEnv *env, jobject obj, jint type);
@@ -39,6 +39,7 @@ private:
 
 	AAssetManager* m_assetManager;
 	std::vector<std::string> m_internalFilePaths;
+	std::vector<std::string> m_internalObjParams;
 };
 
 #endif // _H_VIDEO_RENDERER_CONTEXT_

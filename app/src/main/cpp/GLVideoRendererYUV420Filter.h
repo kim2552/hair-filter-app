@@ -6,18 +6,19 @@
 
 class GLVideoRendererYUV420Filter : public GLVideoRendererYUV420 {
 
+    enum filters{
+
+    };
+
 public:
     GLVideoRendererYUV420Filter();
     virtual ~GLVideoRendererYUV420Filter();
 
     virtual void render() override ;
-    virtual void setParameters(uint32_t params) override;
-    virtual uint32_t getParameters() override;
+    virtual void setParameters(std::vector<std::string> params) override;
+    virtual std::vector<std::string> getParameters() override;
 
 private:
-    size_t m_filter = 0;
-    size_t m_prevFilter = 0;
-
     std::vector<const char *> m_fragmentShader;
 };
 

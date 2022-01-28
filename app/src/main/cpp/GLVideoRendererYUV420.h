@@ -33,9 +33,9 @@ public:
 	virtual void draw(uint8_t *buffer, size_t length, size_t width, size_t height, int rotation, int camera_facing) override;
 	virtual void setAssetManager(AAssetManager* mgr) override;
 	virtual AAssetManager* getAssetManager() override;
-	virtual void setParameters(uint32_t params) override;
+	virtual void setParameters(std::vector<std::string> params) override;
 	virtual void setInternalFilePaths(std::vector<std::string> file_paths) override;
-    virtual uint32_t getParameters() override;
+    virtual std::vector<std::string> getParameters() override;
 	virtual bool createTextures() override;
 	virtual bool updateTextures() override;
 	virtual void deleteTextures() override;

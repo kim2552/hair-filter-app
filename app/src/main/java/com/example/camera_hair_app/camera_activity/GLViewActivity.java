@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 
 import androidx.annotation.NonNull;
@@ -19,6 +20,7 @@ import com.example.camera_hair_app.libs.AspectFrameLayout;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
+import yuku.ambilwarna.AmbilWarnaDialog;
 
 public class GLViewActivity extends BaseViewActivity implements ActivityCompat.OnRequestPermissionsResultCallback {
 
@@ -29,7 +31,8 @@ public class GLViewActivity extends BaseViewActivity implements ActivityCompat.O
     };
 
     private GLVideoRenderer mVideoRenderer;
-    private int mFilter = 0;
+
+    private View mColorPreviewBtn;
 
     private Context appContext;
 
@@ -41,9 +44,15 @@ public class GLViewActivity extends BaseViewActivity implements ActivityCompat.O
 
         appContext = this.getApplicationContext();
 
+        // set the default color to 0 as it is black
+        mDefaultHairColor = 0;
+        mParams[0] = "0";
+        mParams[1] = "ffffffff";
+
         GLSurfaceView glSurfaceView = findViewById(R.id.gl_surface_view);
         mVideoRenderer = new GLVideoRenderer();
         mVideoRenderer.init(glSurfaceView, appContext);
+        mVideoRenderer.setVideoParameters(mParams, appContext);
 
         AspectFrameLayout layout = (AspectFrameLayout) findViewById(R.id.preview);
         layout.setAspectRatio((double) 3/4);
@@ -78,25 +87,78 @@ public class GLViewActivity extends BaseViewActivity implements ActivityCompat.O
             mPreview.setCameraFacing(displayMetrics.widthPixels, displayMetrics.heightPixels);
         });
 
-        Button btnFilterLeft = (Button) findViewById(R.id.filter_left);
-        btnFilterLeft.setOnClickListener(v -> {
-            mParams = mVideoRenderer.getVideoParamaters();
-            mParams -= 1;
-            if(mParams < 0){
-                mParams = 0;
+        Button btnSelectHair = (Button) findViewById(R.id.select_object);
+        btnSelectHair.setOnClickListener(v -> {
+            try{
+                Intent intent = new Intent(this, SelectHairActivity.class);
+                startActivityForResult(intent, SELECT_HAIR_ACTIVITY_REQUEST_CODE);
+            }catch (Exception e){
+                e.printStackTrace();
             }
-            mVideoRenderer.setVideoParameters(mParams, appContext);
         });
 
-        Button btnFilterRight = (Button) findViewById(R.id.filter_right);
-        btnFilterRight.setOnClickListener(v -> {
-            mParams = mVideoRenderer.getVideoParamaters();
-            mParams += 1;
-            if(mParams > 7){
-                mParams = 7;
-            }
-            mVideoRenderer.setVideoParameters(mParams, appContext);
+        mColorPreviewBtn = (View) findViewById(R.id.change_color);
+        mColorPreviewBtn.setOnClickListener(v -> {
+            openColorPickerDialogue();
+            Log.i(TAG,Integer.toString(mDefaultHairColor));
         });
+    }
+
+    // This method is called when the second activity finishes
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        // check that it is the SecondActivity with an OK result
+        if (requestCode == SELECT_HAIR_ACTIVITY_REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+
+                // get String data from Intent
+                String objectSelection = data.getStringExtra(Intent.EXTRA_TEXT);
+
+                mParams[0] = objectSelection;
+                mParams[1] = "ffffffff";                    //white
+                mColorPreviewBtn.setBackgroundColor(-1);    //white
+                mVideoRenderer.setVideoParameters(mParams, appContext);
+            }
+        }
+    }
+
+    // the dialog functionality is handled separately
+    // using openColorPickerDialog this is triggered as
+    // soon as the user clicks on the Pick Color button And
+    // the AmbilWarnaDialog has 2 methods to be overridden
+    // those are onCancel and onOk which handle the "Cancel"
+    // and "OK" button of color picker dialog
+    public void openColorPickerDialogue() {
+
+        // the AmbilWarnaDialog callback needs 3 parameters
+        // one is the context, second is default color,
+        final AmbilWarnaDialog colorPickerDialogue = new AmbilWarnaDialog(this, mDefaultHairColor,
+                new AmbilWarnaDialog.OnAmbilWarnaListener() {
+                    @Override
+                    public void onCancel(AmbilWarnaDialog dialog) {
+                        // leave this function body as
+                        // blank, as the dialog
+                        // automatically closes when
+                        // clicked on cancel button
+                    }
+
+                    @Override
+                    public void onOk(AmbilWarnaDialog dialog, int color) {
+                        // change the mDefaultColor to
+                        // change the GFG text color as
+                        // it is returned when the OK
+                        // button is clicked from the
+                        // color picker dialog
+                        mDefaultHairColor = color;
+                        String hexstr = Integer.toHexString(mDefaultHairColor);
+                        mParams[1] = hexstr;
+                        mVideoRenderer.setVideoParameters(mParams, appContext);
+                        mColorPreviewBtn.setBackgroundColor(mDefaultHairColor);
+                    }
+                });
+        colorPickerDialogue.show();
     }
 
     @Override

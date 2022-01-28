@@ -39,6 +39,7 @@ public class GLVideoRenderer extends VideoRenderer implements GLSurfaceView.Rend
     File mConfigFile;
     File mHairObjFile;
     String[] internalFilePaths = new String[4];
+    String[] internalObjParams = new String[2]; // hair object, hair color
 
     JSONParser parser = new JSONParser();
     Object jsonObj;
@@ -94,22 +95,26 @@ public class GLVideoRenderer extends VideoRenderer implements GLSurfaceView.Rend
         draw(data, width, height, rotation, camera_facing);
     }
 
-    public void setVideoParameters(int params, Context context){
-        String hairObjParams = String.valueOf(params);
+    public void setVideoParameters(String[] params, Context context){
+        String hairObjParam = params[0];
+        String hairColorParam = params[1];
 
         JSONObject jsonObject = (JSONObject)jsonObj;
         JSONObject configsObject = (JSONObject)jsonObject;
 
-        JSONObject selectedHairObj = (JSONObject)((JSONObject)configsObject.get("hairs")).get(hairObjParams);
+        JSONObject selectedHairObj = (JSONObject)((JSONObject)configsObject.get("hairs")).get(hairObjParam);
         String selectedHairObjPath = (String) selectedHairObj.get("path");
 
         createInternalFiles(context, mHairObjFile, selectedHairObjPath, 3);
 
-        setParameters(params);
+        internalObjParams[0] = hairObjParam;
+        internalObjParams[1] = hairColorParam;
+
+        setParameters(internalObjParams);
     }
 
-    public int getVideoParamaters(){
-        return getParameters();
+    public String[] getVideoParamaters(){
+        return internalObjParams;
     }
 
     private void createInternalFiles(Context context, File fileObj, String filepath, int index){

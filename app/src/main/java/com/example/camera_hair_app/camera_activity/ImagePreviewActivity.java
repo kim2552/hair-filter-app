@@ -62,8 +62,7 @@ public class ImagePreviewActivity extends FragmentActivity {
 
         Button btnBack = (Button) findViewById(R.id.previewBackButton);
         btnBack.setOnClickListener(v -> {
-            Intent intent = new Intent(this, GLViewActivity.class);
-            startActivity(intent);
+            super.onBackPressed();
         });
 
         Button btnSave = (Button) findViewById(R.id.previewSaveButton);

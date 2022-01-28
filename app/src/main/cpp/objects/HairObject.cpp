@@ -21,7 +21,7 @@ void HairObject::drawHairObject(Camera camera)
 	m_hairModelObj->model->Draw(*m_hairRenderObj.shader, camera);
 }
 
-void HairObject::initHairObject(AppConfig* appConfig)
+void HairObject::initHairObject(AppConfig* appConfig, glm::vec3 hair_color)
 {
 	m_hairModelObj = new ModelObj(appConfig->params.hair_obj.c_str(), *m_hairRenderObj.textures);
 
@@ -44,12 +44,18 @@ void HairObject::initHairObject(AppConfig* appConfig)
 	m_hairModelObj->model->savedTopHeadDist.z = appConfig->params.topheadz;		// Value obtained from fixedVertex distance from topHeadCoord
 
 	// Take care of all the light related things
-	glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+	glm::vec4 lightColor = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
 	glm::vec3 lightPos = glm::vec3(0.5f, 0.5f, 0.5f);
 
-	glUniform4f(glGetUniformLocation(m_hairRenderObj.shader->ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
+	glUniform4f(glGetUniformLocation(m_hairRenderObj.shader->ID, "lightColor"), hair_color.x, hair_color.y, hair_color.z, 1.0f);
 	glUniform3f(glGetUniformLocation(m_hairRenderObj.shader->ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
 	glUniform3f(glGetUniformLocation(m_hairRenderObj.shader->ID, "filterColor"), 1, 1, 1);
+}
+
+void HairObject::changeHairColor(glm::vec3 color)
+{
+	m_hairRenderObj.shader->Activate();
+	glUniform4f(glGetUniformLocation(m_hairRenderObj.shader->ID, "lightColor"), color.x, color.y, color.z, 1.0);
 }
 
 void HairObject::updateHairObject(FaceMask* faceMask, bool modify_size)

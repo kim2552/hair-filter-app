@@ -11,8 +11,8 @@
 #define ENABLE_FACE_MESH 0
 #define ENABLE_DEBUG_POINTS 0
 
-#define RESIZED_IMAGE_WIDTH 300		// Try different numbers (460)
-#define RESIZED_IMAGE_HEIGHT 400	// Try different numbers
+#define RESIZED_IMAGE_WIDTH 600		// Try different numbers (460)
+#define RESIZED_IMAGE_HEIGHT 800	// Try different numbers
 
 #define IMAGE_ASPECT_RATIO 0.75
 

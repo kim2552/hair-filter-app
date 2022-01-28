@@ -23,6 +23,7 @@ JCMCPRV(void, init)(JNIEnv * env, jobject obj, jobject surface, jint width, jint
 
     if (context){
     	context->setInternalFilePaths(internal_file_paths);
+		context->setParameters(internal_obj_params);
         context->setAssetManager(asset_manager);
         context->init(window, (size_t)width, (size_t)height);
     }
@@ -57,6 +58,7 @@ JCMCPRV(void, setInternalFiles)(JNIEnv * env, jobject obj, jobjectArray filepath
 {
 	int stringCount = env->GetArrayLength(filepaths);
 
+	internal_file_paths.clear();
 	for (int i=0; i<stringCount; i++) {
 		jstring string = (jstring) (env->GetObjectArrayElement(filepaths, i));
 		const char* file_path = env->GetStringUTFChars(string, 0);
@@ -66,18 +68,24 @@ JCMCPRV(void, setInternalFiles)(JNIEnv * env, jobject obj, jobjectArray filepath
 	}
 }
 
-JCMCPRV(void, setParameters)(JNIEnv * env, jobject obj, jint params)
+JCMCPRV(void, setParameters)(JNIEnv * env, jobject obj, jobjectArray params)
 {
 	VideoRendererContext* context = VideoRendererContext::getContext(env, obj);
 
-	if (context) context->setParameters((uint32_t)params);
+	internal_obj_params.clear();
+	int stringCount = env->GetArrayLength(params);
+	for(int i=0; i<stringCount; i++){
+		jstring string = (jstring) (env->GetObjectArrayElement(params, i));
+		const char* param = env->GetStringUTFChars(string, 0);
+		internal_obj_params.push_back(std::string(param));
+	}
+
+	if (context) context->setParameters(internal_obj_params);
 }
 
 JCMCPRV(jint, getParameters)(JNIEnv * env, jobject obj)
 {
 	VideoRendererContext* context = VideoRendererContext::getContext(env, obj);
-
-	if (context) return context->getParameters();
 
 	return 0;
 }

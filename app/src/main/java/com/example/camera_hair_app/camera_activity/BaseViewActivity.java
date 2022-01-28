@@ -19,7 +19,12 @@ public abstract class BaseViewActivity extends FragmentActivity implements Previ
 
     private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
     protected VideoCameraPreview mPreview;
-    protected int mParams;
+    protected String[] mParams = new String[2];
+
+    protected static final int SELECT_HAIR_ACTIVITY_REQUEST_CODE = 0;
+
+    // this is the default color of the hair object
+    protected int mDefaultHairColor;
 
     protected DisplayMetrics displayMetrics = new DisplayMetrics();
 
@@ -46,3 +51,4 @@ public abstract class BaseViewActivity extends FragmentActivity implements Previ
         return (ORIENTATIONS.get(rotation) + mPreview.getSensorOrientation() + 270) % 360;
     }
 }
+
