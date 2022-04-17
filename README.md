@@ -24,4 +24,4 @@ The face landmark points are mapped to a pre-configured point in the hair model.
 
 An outline of the peron's face and neck is resized, cropped and displayed a distance away from the original image. The 3D hair model is placed on the outline. This allows the hair to cover parts of the image that does not belong to the face.
 
-Most of the image processing and image rendering code was developed first in [hair-filter-sandbox](https://github.com/kim2552/hair-filter-sandbox) and then later developed as an Android application
+Most of the image processing and image rendering code was first developed in [hair-filter-sandbox](https://github.com/kim2552/hair-filter-sandbox) and then later developed as an Android application.
